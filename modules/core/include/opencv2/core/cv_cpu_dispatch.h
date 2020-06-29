@@ -168,6 +168,11 @@
 #  include <wasm_simd128.h>
 #endif
 
+#if defined(__riscv)
+#  define CV_RISCV 1
+#  include <riscv_vector.h>
+#endif
+
 #endif // CV_ENABLE_INTRINSICS && !CV_DISABLE_OPTIMIZATION && !__CUDACC__
 
 #if defined CV_CPU_COMPILE_AVX && !defined CV_CPU_BASELINE_COMPILE_AVX
@@ -342,4 +347,8 @@ struct VZeroUpperGuard {
 
 #ifndef CV_WASM_SIMD
 #  define CV_WASM_SIMD 0
+#endif
+
+#ifndef CV_RISCV
+#  define CV_RISCV 0
 #endif
