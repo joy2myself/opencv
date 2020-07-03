@@ -1,19 +1,36 @@
 set(CMAKE_SYSTEM_NAME Linux)
 set(CMAKE_SYSTEM_PROCESSOR riscv64)
 
+set(RISCV_CLANG_BUILD_ROOT /home/git/rvv-llvm/build CACHE PATH "Path to CLANG for RISC-V cross compiler build directory")
+set(RISCV_GCC_INSTALL_ROOT /home/RISCV CACHE PATH "Path to GCC for RISC-V cross compiler installation directory")
+
 set(triple riscv64-unknown-linux-gnu)
-set(clang_build_dir /home/git/rvv-llvm/build)
-set(riscv_toolchain_dir /home/RISCV)
 
-set(CMAKE_C_COMPILER   ${clang_build_dir}/bin/clang)
-set(CMAKE_C_COMPILER_TARGET   ${triple})
-set(CMAKE_CXX_COMPILER ${clang_build_dir}/bin/clang++)
-set(CMAKE_CXX_COMPILER_TARGET ${triple})
+set(CLANG_TARGET_TRIPLE riscv64-unknown-linux-gnu)
+set(CMAKE_SYSROOT ${RISCV_GCC_INSTALL_ROOT}/sysroot)
 
-set(CMAKE_SYSROOT ${riscv_toolchain_dir}/sysroot/)
+set(CMAKE_C_COMPILER ${RISCV_CLANG_BUILD_ROOT}/bin/clang)
+set(CMAKE_C_COMPILER_TARGET ${CLANG_TARGET_TRIPLE})
+set(CMAKE_CXX_COMPILER ${RISCV_CLANG_BUILD_ROOT}/bin/clang++)
+set(CMAKE_CXX_COMPILER_TARGET ${CLANG_TARGET_TRIPLE})
+set(CMAKE_ASM_COMPILER ${RISCV_CLANG_BUILD_ROOT}/bin/clang)
+set(CMAKE_ASM_COMPILER_TARGET ${CLANG_TARGET_TRIPLE})
 
-set(C_FLAGS "-march=rv64gcv --gcc-toolchain=${riscv_toolchain_dir} -w")
-set(CXX_FLAGS "-march=rv64gcv --gcc-toolchain=${riscv_toolchain_dir} -w")
+# Don't run the linker on compiler check
+set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
 
-string(REPLACE ";" " " CMAKE_C_FLAGS "${C_FLAGS}")
-string(REPLACE ";" " " CMAKE_CXX_FLAGS "${CXX_FLAGS}")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=rv64gcv --gcc-toolchain=${RISCV_GCC_INSTALL_ROOT} -w")
+set(CXX_FLAGS "${CXX_FLAGS} -march=rv64gcv --gcc-toolchain=${RISCV_GCC_INSTALL_ROOT} -w")
+
+set(CMAKE_FIND_ROOT_PATH ${CMAKE_SYSROOT})
+
+include_directories(
+  "${RISCV_GCC_INSTALL_ROOT}/riscv64-unknown-linux-gnu/include/c++/9.2.0"
+  "${RISCV_GCC_INSTALL_ROOT}/riscv64-unknown-linux-gnu/include/c++/9.2.0/riscv64-unknown-linux-gnu"
+  "${RISCV_GCC_INSTALL_ROOT}/lib/gcc/riscv64-unknown-linux-gnu/9.2.0/include"
+  "${RISCV_GCC_INSTALL_ROOT}/sysroot/usr/include/linux"
+)
+
+set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
