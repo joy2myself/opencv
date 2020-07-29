@@ -360,7 +360,7 @@ CV_CPU_OPTIMIZATION_HAL_NAMESPACE_BEGIN
     CV_INTRIN_DEFINE_WIDE_LUT_QUAD(float, v_float32, prefix) \
     CV_INTRIN_DEFINE_WIDE_INTRIN(int64, v_int64, s64, prefix, load) \
     CV_INTRIN_DEFINE_WIDE_INTRIN(uint64, v_uint64, u64, prefix, load) \
-    CV_INTRIN_DEFINE_WIDE_LOAD_EXPAND(float16_t, v_float32, prefix)
+//    CV_INTRIN_DEFINE_WIDE_LOAD_EXPAND(float16_t, v_float32, prefix)
 
 template<typename _Tp> struct V_RegTraits
 {
