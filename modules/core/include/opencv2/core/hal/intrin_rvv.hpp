@@ -15,6 +15,182 @@ CV_CPU_OPTIMIZATION_HAL_NAMESPACE_BEGIN
 #define CV_SIMD128 1
 #define CV_SIMD128_64F 1
 
+//////////// Unsupported native intrinsics in C++ ////////////
+
+class vuint8mf2_t
+{
+    uchar v[8] = {0};
+};
+class vint8mf2_t
+{
+    schar v[8] = {0};
+};
+class vuint16mf2_t
+{
+    ushort v[4] = {0};
+};
+class vint16mf2_t
+{
+    short v[4] = {0};
+};
+class vuint32mf2_t
+{
+    unsigned v[2] = {0};
+};
+class vint32mf2_t
+{
+    int v[2] = {0};
+};
+class vfloat32mf2_t
+{
+    float v[2] = {0};
+};
+class vuint64mf2_t
+{
+    uint64 v[1] = {0};
+};
+class vint64mf2_t
+{
+    int64 v[1] = {0};
+};
+class vfloat64mf2_t
+{
+    double v[1] = {0};
+};
+class vuint8mf4_t
+{
+    uchar v[4] = {0};
+};
+class vint8mf4_t
+{
+    schar v[4] = {0};
+};
+
+#define OPENCV_HAL_IMPL_RVV_NATIVE_REINTERPRET(_Tpvec1, _Tpvec2, suffix1, suffix2) \
+inline _Tpvec1 vreinterpret_v_##suffix2##m1_##suffix1##m1(const _Tpvec2& v) \
+{ \
+    CV_UNUSED(v); \
+    return _Tpvec1(vzero_##suffix1##m1()); \
+} \
+inline _Tpvec2 vreinterpret_v_##suffix1##m1_##suffix2##m1(const _Tpvec1& v) \
+{ \
+    CV_UNUSED(v); \
+    return _Tpvec2(vzero_##suffix2##m1()); \
+}
+
+OPENCV_HAL_IMPL_RVV_NATIVE_REINTERPRET(vuint8m1_t, vuint16m1_t, u8, u16)
+OPENCV_HAL_IMPL_RVV_NATIVE_REINTERPRET(vint8m1_t, vint16m1_t, i8, i16)
+OPENCV_HAL_IMPL_RVV_NATIVE_REINTERPRET(vuint8m1_t, vuint32m1_t, u8, u32)
+OPENCV_HAL_IMPL_RVV_NATIVE_REINTERPRET(vint8m1_t, vint32m1_t, i8, i32)
+OPENCV_HAL_IMPL_RVV_NATIVE_REINTERPRET(vuint8m1_t, vuint64m1_t, u8, u64)
+OPENCV_HAL_IMPL_RVV_NATIVE_REINTERPRET(vint8m1_t, vint64m1_t, i8, i64)
+OPENCV_HAL_IMPL_RVV_NATIVE_REINTERPRET(vuint16m1_t, vuint32m1_t, u16, u32)
+OPENCV_HAL_IMPL_RVV_NATIVE_REINTERPRET(vint16m1_t, vint32m1_t, i16, i32)
+OPENCV_HAL_IMPL_RVV_NATIVE_REINTERPRET(vuint16m1_t, vuint64m1_t, u16, u64)
+OPENCV_HAL_IMPL_RVV_NATIVE_REINTERPRET(vint16m1_t, vint64m1_t, i16, i64)
+OPENCV_HAL_IMPL_RVV_NATIVE_REINTERPRET(vuint32m1_t, vuint64m1_t, u32, u64)
+OPENCV_HAL_IMPL_RVV_NATIVE_REINTERPRET(vint32m1_t, vint64m1_t, i32, i64)
+
+#define OPENCV_HAL_IMPL_RVV_NATIVE_LOADSTORE_MF2(_Tpvec, _Tp, suffix, width) \
+inline _Tpvec vle##width##_v_##suffix##mf2(const _Tp* ptr) \
+{ \
+    CV_UNUSED(ptr); \
+    _Tpvec tmp; \
+    return tmp; \
+} \
+inline void vse##width##_v_##suffix##mf2(_Tp* ptr, _Tpvec v) \
+{ \
+    CV_UNUSED(ptr); \
+    CV_UNUSED(v); \
+    return; \
+}
+
+OPENCV_HAL_IMPL_RVV_NATIVE_LOADSTORE_MF2(vuint8mf2_t, uint8_t, u8, 8)
+OPENCV_HAL_IMPL_RVV_NATIVE_LOADSTORE_MF2(vint8mf2_t, int8_t, i8, 8)
+OPENCV_HAL_IMPL_RVV_NATIVE_LOADSTORE_MF2(vuint16mf2_t, uint16_t, u16, 16)
+OPENCV_HAL_IMPL_RVV_NATIVE_LOADSTORE_MF2(vint16mf2_t, int16_t, i16, 16)
+OPENCV_HAL_IMPL_RVV_NATIVE_LOADSTORE_MF2(vuint32mf2_t, uint32_t, u32, 32)
+OPENCV_HAL_IMPL_RVV_NATIVE_LOADSTORE_MF2(vint32mf2_t, int32_t, i32, 32)
+OPENCV_HAL_IMPL_RVV_NATIVE_LOADSTORE_MF2(vfloat32mf2_t, float32_t, f32, 32)
+OPENCV_HAL_IMPL_RVV_NATIVE_LOADSTORE_MF2(vuint64mf2_t, uint64_t, u64, 64)
+OPENCV_HAL_IMPL_RVV_NATIVE_LOADSTORE_MF2(vint64mf2_t, int64_t, i64, 64)
+OPENCV_HAL_IMPL_RVV_NATIVE_LOADSTORE_MF2(vfloat64mf2_t, float64_t, f64, 64)
+
+inline vfloat32mf2_t vfncvt_f_f_w_f32mf2 (vfloat64m1_t v)
+{
+    CV_UNUSED(v);
+    vfloat32mf2_t tmp;
+    return tmp;
+}
+
+#define OPENCV_HAL_IMPL_RVV_NATIVE_WCVT(_Tpwvec, _Tpvec, wcvt, suffix) \
+inline _Tpwvec wcvt (_Tpvec v) \
+{ \
+    CV_UNUSED(v); \
+    return _Tpwvec(vzero_##suffix##m1()); \
+}
+
+OPENCV_HAL_IMPL_RVV_NATIVE_WCVT(vuint16m1_t, vuint8mf2_t, vwcvtu_x_x_v_u16m1, u16)
+OPENCV_HAL_IMPL_RVV_NATIVE_WCVT(vint16m1_t, vint8mf2_t, vwcvt_x_x_v_i16m1, i16)
+OPENCV_HAL_IMPL_RVV_NATIVE_WCVT(vuint32m1_t, vuint16mf2_t, vwcvtu_x_x_v_u32m1, u32)
+OPENCV_HAL_IMPL_RVV_NATIVE_WCVT(vint32m1_t, vint16mf2_t, vwcvt_x_x_v_i32m1, i32)
+OPENCV_HAL_IMPL_RVV_NATIVE_WCVT(vuint64m1_t, vuint32mf2_t, vwcvtu_x_x_v_u64m1, u64)
+OPENCV_HAL_IMPL_RVV_NATIVE_WCVT(vint64m1_t, vint32mf2_t, vwcvt_x_x_v_i64m1, i64)
+
+inline vuint8mf4_t vle8_v_u8mf4 (const uint8_t *base)
+{
+    CV_UNUSED(base);
+    vuint8mf4_t tmp;
+    return tmp;
+}
+inline vint8mf4_t vle8_v_i8mf4 (const int8_t *base)
+{
+    CV_UNUSED(base);
+    vint8mf4_t tmp;
+    return tmp;
+}
+
+inline vuint16mf2_t vwcvtu_x_x_v_u16mf2 (vuint8mf4_t src)
+{
+    CV_UNUSED(src);
+    vuint16mf2_t tmp;
+    return tmp;
+}
+inline vint16mf2_t vwcvt_x_x_v_i16mf2 (vint8mf4_t src)
+{
+    CV_UNUSED(src);
+    vint16mf2_t tmp;
+    return tmp;
+}
+
+#define OPENCV_HAL_IMPL_RVV_NATIVE_NCLIP(_Tpnvec, _Tpvec, nclip) \
+inline _Tpnvec nclip (_Tpvec op1, uint8_t op2) \
+{ \
+    CV_UNUSED(op1); \
+    CV_UNUSED(op2); \
+    _Tpnvec tmp; \
+    return tmp; \
+}
+
+OPENCV_HAL_IMPL_RVV_NATIVE_NCLIP(vuint8mf2_t, vuint16m1_t, vnclipu_wx_u8mf2)
+OPENCV_HAL_IMPL_RVV_NATIVE_NCLIP(vint8mf2_t, vint16m1_t, vnclip_wx_i8mf2)
+OPENCV_HAL_IMPL_RVV_NATIVE_NCLIP(vuint16mf2_t, vuint32m1_t, vnclipu_wx_u16mf2)
+OPENCV_HAL_IMPL_RVV_NATIVE_NCLIP(vint16mf2_t, vint32m1_t, vnclip_wx_i16mf2)
+OPENCV_HAL_IMPL_RVV_NATIVE_NCLIP(vuint32mf2_t, vuint64m1_t, vnclipu_wx_u32mf2)
+OPENCV_HAL_IMPL_RVV_NATIVE_NCLIP(vint32mf2_t, vint64m1_t, vnclip_wx_i32mf2)
+
+inline vuint8mf2_t vreinterpret_v_i8mf2_u8mf2 (vint8mf2_t src)
+{
+    CV_UNUSED(src);    
+    vuint8mf2_t tmp;
+    return tmp;
+}
+inline vuint16mf2_t vreinterpret_v_i16mf2_u16mf2 (vint16mf2_t src)
+{
+    CV_UNUSED(src);    
+    vuint16mf2_t tmp;
+    return tmp;
+}
 
 //////////// Types ////////////
 
@@ -244,6 +420,22 @@ OPENCV_HAL_IMPL_RVV_INIT_FP(float64x2, double, f64)
 
 //////////// Reinterpret ////////////
 
+#define OPENCV_HAL_IMPL_RVV_SELF_REINTERPRET(_Tpvec, suffix) \
+inline v_##_Tpvec v_reinterpret_as_##suffix(const v_##_Tpvec& v) { return v; }
+
+OPENCV_HAL_IMPL_RVV_SELF_REINTERPRET(uint8x16, u8)
+OPENCV_HAL_IMPL_RVV_SELF_REINTERPRET(int8x16, s8)
+OPENCV_HAL_IMPL_RVV_SELF_REINTERPRET(uint16x8, u16)
+OPENCV_HAL_IMPL_RVV_SELF_REINTERPRET(int16x8, s16)
+OPENCV_HAL_IMPL_RVV_SELF_REINTERPRET(uint32x4, u32)
+OPENCV_HAL_IMPL_RVV_SELF_REINTERPRET(int32x4, s32)
+OPENCV_HAL_IMPL_RVV_SELF_REINTERPRET(float32x4, f32)
+OPENCV_HAL_IMPL_RVV_SELF_REINTERPRET(uint64x2, u64)
+OPENCV_HAL_IMPL_RVV_SELF_REINTERPRET(int64x2, s64)
+#if CV_SIMD128_64F
+OPENCV_HAL_IMPL_RVV_SELF_REINTERPRET(float64x2, f64)
+#endif
+
 #define OPENCV_HAL_IMPL_RVV_ONE_TIME_REINTERPRET(_Tpvec1, _Tpvec2, suffix1, suffix2, intrin_suffix1, intrin_suffix2) \
 inline v_##_Tpvec1 v_reinterpret_as_##suffix1(const v_##_Tpvec2& v) { return v_##_Tpvec1(vreinterpret_v_##intrin_suffix2##m1_##intrin_suffix1##m1(v.val)); } \
 inline v_##_Tpvec2 v_reinterpret_as_##suffix2(const v_##_Tpvec1& v) { return v_##_Tpvec2(vreinterpret_v_##intrin_suffix1##m1_##intrin_suffix2##m1(v.val)); }
@@ -252,11 +444,11 @@ OPENCV_HAL_IMPL_RVV_ONE_TIME_REINTERPRET(uint8x16, int8x16, u8, s8, u8, i8);
 OPENCV_HAL_IMPL_RVV_ONE_TIME_REINTERPRET(uint16x8, int16x8, u16, s16, u16, i16);
 OPENCV_HAL_IMPL_RVV_ONE_TIME_REINTERPRET(uint32x4, int32x4, u32, s32, u32, i32);
 OPENCV_HAL_IMPL_RVV_ONE_TIME_REINTERPRET(uint32x4, float32x4, u32, f32, u32, f32);
-OPENCV_HAL_IMPL_RVV_ONE_TIME_REINTERPRET(int32x4, float32x4, i32, f32, i32, f32);
+OPENCV_HAL_IMPL_RVV_ONE_TIME_REINTERPRET(int32x4, float32x4, s32, f32, i32, f32);
 OPENCV_HAL_IMPL_RVV_ONE_TIME_REINTERPRET(uint64x2, int64x2, u64, s64, u64, i64);
 #if CV_SIMD128_64F
 OPENCV_HAL_IMPL_RVV_ONE_TIME_REINTERPRET(uint64x2, float64x2, u64, f64, u64, f64);
-OPENCV_HAL_IMPL_RVV_ONE_TIME_REINTERPRET(int64x2, float64x2, i64, f64, i64, f64);
+OPENCV_HAL_IMPL_RVV_ONE_TIME_REINTERPRET(int64x2, float64x2, s64, f64, i64, f64);
 #endif
 OPENCV_HAL_IMPL_RVV_ONE_TIME_REINTERPRET(uint8x16, uint16x8, u8, u16, u8, u16)
 OPENCV_HAL_IMPL_RVV_ONE_TIME_REINTERPRET(uint8x16, uint32x4, u8, u32, u8, u32)
@@ -346,7 +538,7 @@ inline void v_store(_Tp* ptr, const _Tpvec& a, hal::StoreMode /*mode*/) \
 { vse##width##_v_##suffix##m1(ptr, a.val); } \
 inline void v_store_low(_Tp* ptr, const _Tpvec& a) \
 { \
-    _Tp CV_DECL_ALIGNED(32) tmp_ptr[_Tpvec::nlanes]; \
+    _Tp CV_DECL_ALIGNED(32) tmp_ptr[_Tpvec::nlanes] = {0}; \
     vse##width##_v_##suffix##m1(tmp_ptr, a.val); \
     for(int i = 0; i < _Tpvec::nlanes/2; ++i) \
     { \
@@ -355,7 +547,7 @@ inline void v_store_low(_Tp* ptr, const _Tpvec& a) \
 } \
 inline void v_store_high(_Tp* ptr, const _Tpvec& a) \
 { \
-    _Tp CV_DECL_ALIGNED(32) tmp_ptr[_Tpvec::nlanes]; \
+    _Tp CV_DECL_ALIGNED(32) tmp_ptr[_Tpvec::nlanes] = {0}; \
     vse##width##_v_##suffix##m1(tmp_ptr, a.val); \
     for(int i = 0; i < _Tpvec::nlanes/2; ++i) \
     { \
@@ -761,7 +953,7 @@ inline v_float64x2 v_lut(const double* tab, const v_int32x4& idxvec)
 
 inline void v_lut_deinterleave(const double* tab, const v_int32x4& idxvec, v_float64x2& x, v_float64x2& y)
 {
-    int CV_DECL_ALIGNED(32) idx[4];
+    int CV_DECL_ALIGNED(32) idx[4] = {0};
     v_store_aligned(idx, idxvec);
 
     x = v_float64x2(tab[idx[0]], tab[idx[1]]);
@@ -773,8 +965,8 @@ inline void v_lut_deinterleave(const double* tab, const v_int32x4& idxvec, v_flo
 
 inline v_uint8x16 v_pack_b(const v_uint16x8& a, const v_uint16x8& b)
 {
-    ushort CV_DECL_ALIGNED(32) ptra[8];
-    ushort CV_DECL_ALIGNED(32) ptrb[8];
+    ushort CV_DECL_ALIGNED(32) ptra[8] = {0};
+    ushort CV_DECL_ALIGNED(32) ptrb[8] = {0};
     v_store(ptra, a);
     v_store(ptrb, b);
     ushort CV_DECL_ALIGNED(32) elems[16] =
@@ -788,10 +980,10 @@ inline v_uint8x16 v_pack_b(const v_uint16x8& a, const v_uint16x8& b)
 inline v_uint8x16 v_pack_b(const v_uint32x4& a, const v_uint32x4& b,
                            const v_uint32x4& c, const v_uint32x4& d)
 {
-    unsigned CV_DECL_ALIGNED(32) ptra[4];
-    unsigned CV_DECL_ALIGNED(32) ptrb[4];
-    unsigned CV_DECL_ALIGNED(32) ptrc[4];
-    unsigned CV_DECL_ALIGNED(32) ptrd[4];
+    unsigned CV_DECL_ALIGNED(32) ptra[4] = {0};
+    unsigned CV_DECL_ALIGNED(32) ptrb[4] = {0};
+    unsigned CV_DECL_ALIGNED(32) ptrc[4] = {0};
+    unsigned CV_DECL_ALIGNED(32) ptrd[4] = {0};
     v_store(ptra, a);
     v_store(ptrb, b);
     v_store(ptrc, c);
@@ -810,14 +1002,14 @@ inline v_uint8x16 v_pack_b(const v_uint64x2& a, const v_uint64x2& b, const v_uin
                            const v_uint64x2& d, const v_uint64x2& e, const v_uint64x2& f,
                            const v_uint64x2& g, const v_uint64x2& h)
 {
-    uint64 CV_DECL_ALIGNED(32) ptra[2];
-    uint64 CV_DECL_ALIGNED(32) ptrb[2];
-    uint64 CV_DECL_ALIGNED(32) ptrc[2];
-    uint64 CV_DECL_ALIGNED(32) ptrd[2];
-    uint64 CV_DECL_ALIGNED(32) ptre[2];
-    uint64 CV_DECL_ALIGNED(32) ptrf[2];
-    uint64 CV_DECL_ALIGNED(32) ptrg[2];
-    uint64 CV_DECL_ALIGNED(32) ptrh[2];
+    uint64 CV_DECL_ALIGNED(32) ptra[2] = {0};
+    uint64 CV_DECL_ALIGNED(32) ptrb[2] = {0};
+    uint64 CV_DECL_ALIGNED(32) ptrc[2] = {0};
+    uint64 CV_DECL_ALIGNED(32) ptrd[2] = {0};
+    uint64 CV_DECL_ALIGNED(32) ptre[2] = {0};
+    uint64 CV_DECL_ALIGNED(32) ptrf[2] = {0};
+    uint64 CV_DECL_ALIGNED(32) ptrg[2] = {0};
+    uint64 CV_DECL_ALIGNED(32) ptrh[2] = {0};
     v_store(ptra, a);
     v_store(ptrb, b);
     v_store(ptrc, c);
@@ -1106,7 +1298,7 @@ OPENCV_HAL_IMPL_RVV_BIN_FUNC(v_int16x8, v_mul_wrap, vmul_vv_i16m1)
 #define OPENCV_HAL_IMPL_RVV_REDUCE(_Tpvec, func, scalartype, suffix, red) \
 inline scalartype v_reduce_##func(const _Tpvec& a)  \
 { \
-    _Tpvec dst; \
+    _Tpvec dst = _Tpvec(vzero_##suffix##m1()); \
     v##red##_vs_##suffix##m1_##suffix##m1(dst.val, a.val, vzero_##suffix##m1()); \
     return scalartype(dst.get0()); \
 }
@@ -1127,8 +1319,6 @@ OPENCV_HAL_IMPL_RVV_REDUCE(v_int16x8, min, short, i16, redmin)
 OPENCV_HAL_IMPL_RVV_REDUCE(v_uint32x4, min, unsigned, u32, redminu)
 OPENCV_HAL_IMPL_RVV_REDUCE(v_int32x4, min, int, i32, redmin)
 OPENCV_HAL_IMPL_RVV_REDUCE(v_float32x4, min, float, f32, fredmin)
-OPENCV_HAL_IMPL_RVV_REDUCE(v_uint64x2, min, uint64, u64, redminu)
-OPENCV_HAL_IMPL_RVV_REDUCE(v_int64x2, min, int64, i64, redmin)
 OPENCV_HAL_IMPL_RVV_REDUCE(v_uint8x16, max, uchar, u8, redmaxu)
 OPENCV_HAL_IMPL_RVV_REDUCE(v_int8x16, max, schar, i8, redmax)
 OPENCV_HAL_IMPL_RVV_REDUCE(v_uint16x8, max, ushort, u16, redmaxu)
@@ -1136,12 +1326,8 @@ OPENCV_HAL_IMPL_RVV_REDUCE(v_int16x8, max, short, i16, redmax)
 OPENCV_HAL_IMPL_RVV_REDUCE(v_uint32x4, max, unsigned, u32, redmaxu)
 OPENCV_HAL_IMPL_RVV_REDUCE(v_int32x4, max, int, i32, redmax)
 OPENCV_HAL_IMPL_RVV_REDUCE(v_float32x4, max, float, f32, fredmax)
-OPENCV_HAL_IMPL_RVV_REDUCE(v_uint64x2, max, uint64, u64, redmaxu)
-OPENCV_HAL_IMPL_RVV_REDUCE(v_int64x2, max, int64, i64, redmax)
 #if CV_SIMD128_64F
 OPENCV_HAL_IMPL_RVV_REDUCE(v_float64x2, sum, double, f64, fredsum)
-OPENCV_HAL_IMPL_RVV_REDUCE(v_float64x2, min, double, f64, fredmin)
-OPENCV_HAL_IMPL_RVV_REDUCE(v_float64x2, max, double, f64, fredmax)
 #endif
 
 inline v_float32x4 v_reduce_sum4(const v_float32x4& a, const v_float32x4& b,
@@ -1259,10 +1445,30 @@ OPENCV_HAL_IMPL_RVV_CHECK_ALLANY(v_int16x8, s16)
 OPENCV_HAL_IMPL_RVV_CHECK_ALLANY(v_uint32x4, u32)
 OPENCV_HAL_IMPL_RVV_CHECK_ALLANY(v_int32x4, s32)
 OPENCV_HAL_IMPL_RVV_CHECK_ALLANY(v_float32x4, f32)
-OPENCV_HAL_IMPL_RVV_CHECK_ALLANY(v_uint64x2, u64)
-OPENCV_HAL_IMPL_RVV_CHECK_ALLANY(v_int64x2, s64)
+
+inline bool v_check_all(const v_uint64x2& a)
+{
+    v_uint64x2 dst = v_uint64x2(vzero_u64m1());
+    vredmaxu_vs_u64m1_u64m1(dst.val, (a >= v_setzero_u64()).val, vzero_u64m1());
+    return bool(dst.get0());
+}
+inline bool v_check_any(const v_uint64x2& a)
+{
+    v_uint64x2 dst = v_uint64x2(vzero_u64m1());
+    vredmaxu_vs_u64m1_u64m1(dst.val, (a < v_setzero_u64()).val, vzero_u64m1());
+    return bool(dst.get0());
+}
+
+inline bool v_check_all(const v_int64x2& a)
+{ return v_check_all(v_reinterpret_as_u64(a)); }
+inline bool v_check_any(const v_int64x2& a)
+{ return v_check_any(v_reinterpret_as_u64(a)); }
+
 #if CV_SIMD128_64F
-OPENCV_HAL_IMPL_RVV_CHECK_ALLANY(v_float64x2, f64)
+inline bool v_check_all(const v_float64x2& a)
+{ return v_check_all(v_reinterpret_as_u64(a)); }
+inline bool v_check_any(const v_float64x2& a)
+{ return v_check_any(v_reinterpret_as_u64(a)); }
 #endif
 
 ////////////// abs //////////////
@@ -1386,7 +1592,7 @@ inline v_float32x4 v_cvt_f32(const v_int32x4& a)
 #if CV_SIMD128_64F
 inline v_float32x4 v_cvt_f32(const v_float64x2& a)
 {
-    float CV_DECL_ALIGNED(32) ptr[2];
+    float CV_DECL_ALIGNED(32) ptr[2] = {0};
     vse32_v_f32mf2(ptr, vfncvt_f_f_w_f32mf2(a.val));
     float CV_DECL_ALIGNED(32) elems[4] =
     {
@@ -1397,8 +1603,8 @@ inline v_float32x4 v_cvt_f32(const v_float64x2& a)
 
 inline v_float32x4 v_cvt_f32(const v_float64x2& a, const v_float64x2& b)
 {
-    float CV_DECL_ALIGNED(32) ptra[2];
-    float CV_DECL_ALIGNED(32) ptrb[2];
+    float CV_DECL_ALIGNED(32) ptra[2] = {0};
+    float CV_DECL_ALIGNED(32) ptrb[2] = {0};
     vse32_v_f32mf2(ptra, vfncvt_f_f_w_f32mf2(a.val));
     vse32_v_f32mf2(ptrb, vfncvt_f_f_w_f32mf2(b.val));
     float CV_DECL_ALIGNED(32) elems[4] =
@@ -1410,7 +1616,7 @@ inline v_float32x4 v_cvt_f32(const v_float64x2& a, const v_float64x2& b)
 
 inline v_float64x2 v_cvt_f64(const v_int32x4& a)
 {
-    double CV_DECL_ALIGNED(32) ptr[4];
+    double CV_DECL_ALIGNED(32) ptr[4] = {0};
     vse64_v_f64m2(ptr, vfwcvt_f_x_v_f64m2(a.val));
     double CV_DECL_ALIGNED(32) elems[2] =
     {
@@ -1421,7 +1627,7 @@ inline v_float64x2 v_cvt_f64(const v_int32x4& a)
 
 inline v_float64x2 v_cvt_f64_high(const v_int32x4& a)
 {
-    double CV_DECL_ALIGNED(32) ptr[4];
+    double CV_DECL_ALIGNED(32) ptr[4] = {0};
     vse64_v_f64m2(ptr, vfwcvt_f_x_v_f64m2(a.val));
     double CV_DECL_ALIGNED(32) elems[2] =
     {
@@ -1432,7 +1638,7 @@ inline v_float64x2 v_cvt_f64_high(const v_int32x4& a)
 
 inline v_float64x2 v_cvt_f64(const v_float32x4& a)
 {
-    double CV_DECL_ALIGNED(32) ptr[4];
+    double CV_DECL_ALIGNED(32) ptr[4] = {0};
     vse64_v_f64m2(ptr, vfwcvt_f_f_v_f64m2(a.val));
     double CV_DECL_ALIGNED(32) elems[2] =
     {
@@ -1443,7 +1649,7 @@ inline v_float64x2 v_cvt_f64(const v_float32x4& a)
 
 inline v_float64x2 v_cvt_f64_high(const v_float32x4& a)
 {
-    double CV_DECL_ALIGNED(32) ptr[4];
+    double CV_DECL_ALIGNED(32) ptr[4] = {0};
     vse64_v_f64m2(ptr, vfwcvt_f_f_v_f64m2(a.val));
     double CV_DECL_ALIGNED(32) elems[2] =
     {
@@ -1530,8 +1736,8 @@ OPENCV_HAL_IMPL_RVV_TRANSPOSE4x4(float32x4, float, f32)
 #define OPENCV_HAL_IMPL_RVV_REVERSE(_Tpvec, _Tp, width, suffix) \
 inline _Tpvec v_reverse(const _Tpvec& a)  \
 { \
-    _Tp CV_DECL_ALIGNED(32) ptr[_Tpvec::nlanes]; \
-    _Tp CV_DECL_ALIGNED(32) ptra[_Tpvec::nlanes]; \
+    _Tp CV_DECL_ALIGNED(32) ptr[_Tpvec::nlanes] = {0}; \
+    _Tp CV_DECL_ALIGNED(32) ptra[_Tpvec::nlanes] = {0}; \
     v_store(ptra, a); \
     for (int i = 0; i < _Tpvec::nlanes; i++) \
     { \
@@ -1558,8 +1764,8 @@ OPENCV_HAL_IMPL_RVV_REVERSE(v_float64x2, double, 64, f64)
 #define OPENCV_HAL_IMPL_RVV_EXPAND(_Tpwvec, _Tp, _Tpvec, width, suffix, wcvt) \
 inline void v_expand(const _Tpvec& a, _Tpwvec& b0, _Tpwvec& b1) \
 { \
-    _Tp CV_DECL_ALIGNED(32) lptr[_Tpvec::nlanes/2]; \
-    _Tp CV_DECL_ALIGNED(32) hptr[_Tpvec::nlanes/2]; \
+    _Tp CV_DECL_ALIGNED(32) lptr[_Tpvec::nlanes/2] = {0}; \
+    _Tp CV_DECL_ALIGNED(32) hptr[_Tpvec::nlanes/2] = {0}; \
     v_store_low(lptr, a); \
     v_store_high(hptr, a); \
     b0 = _Tpwvec(wcvt(vle##width##_v_##suffix##mf2(lptr))); \
@@ -1567,13 +1773,13 @@ inline void v_expand(const _Tpvec& a, _Tpwvec& b0, _Tpwvec& b1) \
 } \
 inline _Tpwvec v_expand_low(const _Tpvec& a) \
 { \
-    _Tp CV_DECL_ALIGNED(32) lptr[_Tpvec::nlanes/2]; \
+    _Tp CV_DECL_ALIGNED(32) lptr[_Tpvec::nlanes/2] = {0}; \
     v_store_low(lptr, a); \
     return _Tpwvec(wcvt(vle##width##_v_##suffix##mf2(lptr))); \
 } \
 inline _Tpwvec v_expand_high(const _Tpvec& a) \
 { \
-    _Tp CV_DECL_ALIGNED(32) hptr[_Tpvec::nlanes/2]; \
+    _Tp CV_DECL_ALIGNED(32) hptr[_Tpvec::nlanes/2] = {0}; \
     v_store_high(hptr, a); \
     return _Tpwvec(wcvt(vle##width##_v_##suffix##mf2(hptr))); \
 } \
@@ -1603,10 +1809,10 @@ inline v_int32x4 v_load_expand_q(const schar* ptr)
 #define OPENCV_HAL_IMPL_RVV_PACK(_Tpvec, _Tp, _Tpwvec, pack, width, suffix, rshr, cast) \
 inline _Tpvec v_##pack(const _Tpwvec& a, const _Tpwvec& b) \
 { \
-    _Tp CV_DECL_ALIGNED(32) ptra[_Tpvec::nlanes/2]; \
-    _Tp CV_DECL_ALIGNED(32) ptrb[_Tpvec::nlanes/2]; \
+    _Tp CV_DECL_ALIGNED(32) ptra[_Tpvec::nlanes/2] = {0}; \
+    _Tp CV_DECL_ALIGNED(32) ptrb[_Tpvec::nlanes/2] = {0}; \
     vse##width##_v_##suffix##mf2(ptra, cast(rshr(a.val, 0))); \
-    vse##width##_v_##suffix##mf2(ptrb, cast(rshr(a.val, 0))); \
+    vse##width##_v_##suffix##mf2(ptrb, cast(rshr(b.val, 0))); \
     return v_load_halves(ptra, ptrb); \
 } \
 inline void v_##pack##_store(_Tp* ptr, const _Tpwvec& a) \
@@ -1616,10 +1822,10 @@ inline void v_##pack##_store(_Tp* ptr, const _Tpwvec& a) \
 template<int n> inline \
 _Tpvec v_rshr_##pack(const _Tpwvec& a, const _Tpwvec& b) \
 { \
-    _Tp CV_DECL_ALIGNED(32) ptra[_Tpvec::nlanes/2]; \
-    _Tp CV_DECL_ALIGNED(32) ptrb[_Tpvec::nlanes/2]; \
+    _Tp CV_DECL_ALIGNED(32) ptra[_Tpvec::nlanes/2] = {0}; \
+    _Tp CV_DECL_ALIGNED(32) ptrb[_Tpvec::nlanes/2] = {0}; \
     vse##width##_v_##suffix##mf2(ptra, cast(rshr(a.val, n))); \
-    vse##width##_v_##suffix##mf2(ptrb, cast(rshr(a.val, n))); \
+    vse##width##_v_##suffix##mf2(ptrb, cast(rshr(b.val, n))); \
     return v_load_halves(ptra, ptrb); \
 } \
 template<int n> inline \
@@ -1633,7 +1839,7 @@ OPENCV_HAL_IMPL_RVV_PACK(v_int8x16, schar, v_int16x8, pack, 8, i8, vnclip_wx_i8m
 OPENCV_HAL_IMPL_RVV_PACK(v_uint16x8, ushort, v_uint32x4, pack, 16, u16, vnclipu_wx_u16mf2, OPENCV_HAL_NOP)
 OPENCV_HAL_IMPL_RVV_PACK(v_int16x8, short, v_int32x4, pack, 16, i16, vnclip_wx_i16mf2, OPENCV_HAL_NOP)
 OPENCV_HAL_IMPL_RVV_PACK(v_uint32x4, unsigned, v_uint64x2, pack, 32, u32, vnclipu_wx_u32mf2, OPENCV_HAL_NOP)
-OPENCV_HAL_IMPL_RVV_PACK(v_int32x4, int, v_int64x2, pack, 32, i32, vnclipu_wx_i32mf2, OPENCV_HAL_NOP)
+OPENCV_HAL_IMPL_RVV_PACK(v_int32x4, int, v_int64x2, pack, 32, i32, vnclip_wx_i32mf2, OPENCV_HAL_NOP)
 
 OPENCV_HAL_IMPL_RVV_PACK(v_uint8x16, uchar, v_int16x8, pack_u, 8, u8, vnclip_wx_i8mf2, vreinterpret_v_i8mf2_u8mf2)
 OPENCV_HAL_IMPL_RVV_PACK(v_uint16x8, ushort, v_int32x4, pack_u, 16, u16, vnclip_wx_i16mf2, vreinterpret_v_i16mf2_u16mf2)
@@ -1642,10 +1848,10 @@ OPENCV_HAL_IMPL_RVV_PACK(v_uint16x8, ushort, v_int32x4, pack_u, 16, u16, vnclip_
 #define OPENCV_HAL_IMPL_RVV_UNPACKS(_Tpvec, _Tp, width, suffix) \
 inline void v_zip(const v_##_Tpvec& a0, const v_##_Tpvec& a1, v_##_Tpvec& b0, v_##_Tpvec& b1) \
 { \
-    _Tp CV_DECL_ALIGNED(32) ptra0[v_##_Tpvec::nlanes]; \
-    _Tp CV_DECL_ALIGNED(32) ptra1[v_##_Tpvec::nlanes]; \
-    _Tp CV_DECL_ALIGNED(32) ptrb0[v_##_Tpvec::nlanes]; \
-    _Tp CV_DECL_ALIGNED(32) ptrb1[v_##_Tpvec::nlanes]; \
+    _Tp CV_DECL_ALIGNED(32) ptra0[v_##_Tpvec::nlanes] = {0}; \
+    _Tp CV_DECL_ALIGNED(32) ptra1[v_##_Tpvec::nlanes] = {0}; \
+    _Tp CV_DECL_ALIGNED(32) ptrb0[v_##_Tpvec::nlanes] = {0}; \
+    _Tp CV_DECL_ALIGNED(32) ptrb1[v_##_Tpvec::nlanes] = {0}; \
     v_store(ptra0, a0); \
     v_store(ptra1, a1); \
     int i; \
@@ -1664,16 +1870,16 @@ inline void v_zip(const v_##_Tpvec& a0, const v_##_Tpvec& a1, v_##_Tpvec& b0, v_
 } \
 inline v_##_Tpvec v_combine_low(const v_##_Tpvec& a, const v_##_Tpvec& b) \
 { \
-    _Tp CV_DECL_ALIGNED(32) ptra[v_##_Tpvec::nlanes/2]; \
-    _Tp CV_DECL_ALIGNED(32) ptrb[v_##_Tpvec::nlanes/2]; \
+    _Tp CV_DECL_ALIGNED(32) ptra[v_##_Tpvec::nlanes/2] = {0}; \
+    _Tp CV_DECL_ALIGNED(32) ptrb[v_##_Tpvec::nlanes/2] = {0}; \
     v_store_low(ptra, a); \
     v_store_low(ptrb, b); \
     return v_load_halves(ptra, ptrb); \
 } \
 inline v_##_Tpvec v_combine_high(const v_##_Tpvec& a, const v_##_Tpvec& b) \
 { \
-    _Tp CV_DECL_ALIGNED(32) ptra[v_##_Tpvec::nlanes/2]; \
-    _Tp CV_DECL_ALIGNED(32) ptrb[v_##_Tpvec::nlanes/2]; \
+    _Tp CV_DECL_ALIGNED(32) ptra[v_##_Tpvec::nlanes/2] = {0}; \
+    _Tp CV_DECL_ALIGNED(32) ptrb[v_##_Tpvec::nlanes/2] = {0}; \
     v_store_high(ptra, a); \
     v_store_high(ptrb, b); \
     return v_load_halves(ptra, ptrb); \
@@ -1699,8 +1905,8 @@ OPENCV_HAL_IMPL_RVV_UNPACKS(float64x2, double, 64, f64)
 #define OPENCV_HAL_IMPL_RVV_INTERLEAVED(_Tpvec, _Tp, suffix, width) \
 inline void v_load_deinterleave(const _Tp* ptr, v_##_Tpvec& a, v_##_Tpvec& b) \
 { \
-    _Tp CV_DECL_ALIGNED(32) ptra[v_##_Tpvec::nlanes]; \
-    _Tp CV_DECL_ALIGNED(32) ptrb[v_##_Tpvec::nlanes]; \
+    _Tp CV_DECL_ALIGNED(32) ptra[v_##_Tpvec::nlanes] = {0}; \
+    _Tp CV_DECL_ALIGNED(32) ptrb[v_##_Tpvec::nlanes] = {0}; \
     int i, i2; \
     for( i = i2 = 0; i < v_##_Tpvec::nlanes; i++, i2 += 2 ) \
     { \
@@ -1712,9 +1918,9 @@ inline void v_load_deinterleave(const _Tp* ptr, v_##_Tpvec& a, v_##_Tpvec& b) \
 } \
 inline void v_load_deinterleave(const _Tp* ptr, v_##_Tpvec& a, v_##_Tpvec& b, v_##_Tpvec& c) \
 { \
-    _Tp CV_DECL_ALIGNED(32) ptra[v_##_Tpvec::nlanes]; \
-    _Tp CV_DECL_ALIGNED(32) ptrb[v_##_Tpvec::nlanes]; \
-    _Tp CV_DECL_ALIGNED(32) ptrc[v_##_Tpvec::nlanes]; \
+    _Tp CV_DECL_ALIGNED(32) ptra[v_##_Tpvec::nlanes] = {0}; \
+    _Tp CV_DECL_ALIGNED(32) ptrb[v_##_Tpvec::nlanes] = {0}; \
+    _Tp CV_DECL_ALIGNED(32) ptrc[v_##_Tpvec::nlanes] = {0}; \
     int i, i3; \
     for( i = i3 = 0; i < v_##_Tpvec::nlanes; i++, i3 += 3 ) \
     { \
@@ -1729,10 +1935,10 @@ inline void v_load_deinterleave(const _Tp* ptr, v_##_Tpvec& a, v_##_Tpvec& b, v_
 inline void v_load_deinterleave(const _Tp* ptr, v_##_Tpvec& a, v_##_Tpvec& b, \
                                 v_##_Tpvec& c, v_##_Tpvec& d) \
 { \
-    _Tp CV_DECL_ALIGNED(32) ptra[v_##_Tpvec::nlanes]; \
-    _Tp CV_DECL_ALIGNED(32) ptrb[v_##_Tpvec::nlanes]; \
-    _Tp CV_DECL_ALIGNED(32) ptrc[v_##_Tpvec::nlanes]; \
-    _Tp CV_DECL_ALIGNED(32) ptrd[v_##_Tpvec::nlanes]; \
+    _Tp CV_DECL_ALIGNED(32) ptra[v_##_Tpvec::nlanes] = {0}; \
+    _Tp CV_DECL_ALIGNED(32) ptrb[v_##_Tpvec::nlanes] = {0}; \
+    _Tp CV_DECL_ALIGNED(32) ptrc[v_##_Tpvec::nlanes] = {0}; \
+    _Tp CV_DECL_ALIGNED(32) ptrd[v_##_Tpvec::nlanes] = {0}; \
     int i, i4; \
     for( i = i4 = 0; i < v_##_Tpvec::nlanes; i++, i4 += 4 ) \
     { \
@@ -1750,8 +1956,8 @@ inline void v_store_interleave( _Tp* ptr, const v_##_Tpvec& a, const v_##_Tpvec&
                                 hal::StoreMode /*mode*/=hal::STORE_UNALIGNED) \
 { \
     int i, i2; \
-    _Tp CV_DECL_ALIGNED(32) ptra[v_##_Tpvec::nlanes]; \
-    _Tp CV_DECL_ALIGNED(32) ptrb[v_##_Tpvec::nlanes]; \
+    _Tp CV_DECL_ALIGNED(32) ptra[v_##_Tpvec::nlanes] = {0}; \
+    _Tp CV_DECL_ALIGNED(32) ptrb[v_##_Tpvec::nlanes] = {0}; \
     v_store(ptra, a); \
     v_store(ptrb, b); \
     for( i = i2 = 0; i < v_##_Tpvec::nlanes; i++, i2 += 2 ) \
@@ -1764,9 +1970,9 @@ inline void v_store_interleave( _Tp* ptr, const v_##_Tpvec& a, const v_##_Tpvec&
                                 const v_##_Tpvec& c, hal::StoreMode /*mode*/=hal::STORE_UNALIGNED) \
 { \
     int i, i3; \
-    _Tp CV_DECL_ALIGNED(32) ptra[v_##_Tpvec::nlanes]; \
-    _Tp CV_DECL_ALIGNED(32) ptrb[v_##_Tpvec::nlanes]; \
-    _Tp CV_DECL_ALIGNED(32) ptrc[v_##_Tpvec::nlanes]; \
+    _Tp CV_DECL_ALIGNED(32) ptra[v_##_Tpvec::nlanes] = {0}; \
+    _Tp CV_DECL_ALIGNED(32) ptrb[v_##_Tpvec::nlanes] = {0}; \
+    _Tp CV_DECL_ALIGNED(32) ptrc[v_##_Tpvec::nlanes] = {0}; \
     v_store(ptra, a); \
     v_store(ptrb, b); \
     v_store(ptrc, c); \
@@ -1782,10 +1988,10 @@ inline void v_store_interleave( _Tp* ptr, const v_##_Tpvec& a, const v_##_Tpvec&
                                 hal::StoreMode /*mode*/=hal::STORE_UNALIGNED ) \
 { \
     int i, i4; \
-    _Tp CV_DECL_ALIGNED(32) ptra[v_##_Tpvec::nlanes]; \
-    _Tp CV_DECL_ALIGNED(32) ptrb[v_##_Tpvec::nlanes]; \
-    _Tp CV_DECL_ALIGNED(32) ptrc[v_##_Tpvec::nlanes]; \
-    _Tp CV_DECL_ALIGNED(32) ptrd[v_##_Tpvec::nlanes]; \
+    _Tp CV_DECL_ALIGNED(32) ptra[v_##_Tpvec::nlanes] = {0}; \
+    _Tp CV_DECL_ALIGNED(32) ptrb[v_##_Tpvec::nlanes] = {0}; \
+    _Tp CV_DECL_ALIGNED(32) ptrc[v_##_Tpvec::nlanes] = {0}; \
+    _Tp CV_DECL_ALIGNED(32) ptrd[v_##_Tpvec::nlanes] = {0}; \
     v_store(ptra, a); \
     v_store(ptrb, b); \
     v_store(ptrc, c); \
@@ -1800,8 +2006,8 @@ inline void v_store_interleave( _Tp* ptr, const v_##_Tpvec& a, const v_##_Tpvec&
 } \
 inline v_##_Tpvec v_interleave_pairs(const v_##_Tpvec& vec) \
 { \
-    _Tp CV_DECL_ALIGNED(32) ptr[v_##_Tpvec::nlanes]; \
-    _Tp CV_DECL_ALIGNED(32) ptrvec[v_##_Tpvec::nlanes]; \
+    _Tp CV_DECL_ALIGNED(32) ptr[v_##_Tpvec::nlanes] = {0}; \
+    _Tp CV_DECL_ALIGNED(32) ptrvec[v_##_Tpvec::nlanes] = {0}; \
     v_store(ptrvec, vec); \
     for (int i = 0; i < v_##_Tpvec::nlanes/4; i++) \
     { \
@@ -1814,8 +2020,8 @@ inline v_##_Tpvec v_interleave_pairs(const v_##_Tpvec& vec) \
 } \
 inline v_##_Tpvec v_interleave_quads(const v_##_Tpvec& vec) \
 { \
-    _Tp CV_DECL_ALIGNED(32) ptr[v_##_Tpvec::nlanes]; \
-    _Tp CV_DECL_ALIGNED(32) ptrvec[v_##_Tpvec::nlanes]; \
+    _Tp CV_DECL_ALIGNED(32) ptr[v_##_Tpvec::nlanes] = {0}; \
+    _Tp CV_DECL_ALIGNED(32) ptrvec[v_##_Tpvec::nlanes] = {0}; \
     v_store(ptrvec, vec); \
     for (int i = 0; i < v_##_Tpvec::nlanes/8; i++) \
     { \
@@ -1869,9 +2075,9 @@ static const unsigned char popCountTable[] =
 #define OPENCV_HAL_IMPL_RVV_POPCOUNT_OP(_Tpvec, _Tp, suffix) \
 inline _Tpvec v_popcount(const _Tpvec& a) \
 { \
-    uchar CV_DECL_ALIGNED(32) ptra[16]; \
+    uchar CV_DECL_ALIGNED(32) ptra[16] = {0}; \
     v_store(ptra, v_reinterpret_as_u8(a)); \
-    _Tp CV_DECL_ALIGNED(32) ptr[_Tpvec::nlanes]; \
+    _Tp CV_DECL_ALIGNED(32) ptr[_Tpvec::nlanes] = {0}; \
     v_store(ptr, v_setzero_##suffix()); \
     for (int i = 0; i < _Tpvec::nlanes*(int)sizeof(_Tp); i++) \
         ptr[i/sizeof(_Tp)] += popCountTable[ptra[i]]; \
@@ -1893,8 +2099,8 @@ OPENCV_HAL_IMPL_RVV_POPCOUNT_OP(v_int64x2, int64, s64)
 inline int v_signmask(const _Tpvec& a) \
 { \
     int mask = 0; \
-    int CV_DECL_ALIGNED(32) ptr[4]; \
-    v_store(ptr, v_reinterpret_as_i32(a)); \
+    int CV_DECL_ALIGNED(32) ptr[4] = {0}; \
+    v_store(ptr, v_reinterpret_as_s32(a)); \
     for( int i = 0; i < _Tpvec::nlanes; i++ ) \
         mask |= (ptr[i] < 0) << i; \
     return mask; \
@@ -1918,8 +2124,8 @@ OPENCV_HAL_IMPL_RVV_SIGNMASK_OP(v_float64x2)
 #define OPENCV_HAL_IMPL_RVV_SCAN_FORWOARD_OP(_Tpvec) \
 inline int v_scan_forward(const _Tpvec& a) \
 { \
-    int CV_DECL_ALIGNED(32) ptr[4]; \
-    v_store(ptr, v_reinterpret_as_i32(a)); \
+    int CV_DECL_ALIGNED(32) ptr[4] = {0}; \
+    v_store(ptr, v_reinterpret_as_s32(a)); \
     for (int i = 0; i < _Tpvec::nlanes; i++) \
         if(ptr[i] < 0) \
             return i; \
@@ -1944,8 +2150,8 @@ OPENCV_HAL_IMPL_RVV_SCAN_FORWOARD_OP(v_float64x2)
 #define OPENCV_HAL_IMPL_RVV_PACK_TRIPLETS(_Tpvec, _Tp) \
 inline _Tpvec v_pack_triplets(const _Tpvec& vec) \
 { \
-    _Tp CV_DECL_ALIGNED(32) ptr[_Tpvec::nlanes]; \
-    _Tp CV_DECL_ALIGNED(32) ptrvec[_Tpvec::nlanes]; \
+    _Tp CV_DECL_ALIGNED(32) ptr[_Tpvec::nlanes] = {0}; \
+    _Tp CV_DECL_ALIGNED(32) ptrvec[_Tpvec::nlanes] = {0}; \
     v_store(ptrvec, vec); \
     for (int i = 0; i < _Tpvec::nlanes/4; i++) \
     { \
@@ -2020,6 +2226,38 @@ inline v_int32x4 v_trunc(const v_float32x4& a)
 {
     return v_int32x4(vfcvt_rtz_x_f_v_i32m1(a.val));
 }
+#if CV_SIMD128_64F
+inline v_int32x4 v_round(const v_float64x2& a)
+{
+    CV_UNUSED(a);
+    return v_setzero_s32();
+}
+
+inline v_int32x4 v_round(const v_float64x2& a, const v_float64x2& b)
+{
+    CV_UNUSED(a);
+    CV_UNUSED(b);
+    return v_setzero_s32();
+}
+
+inline v_int32x4 v_floor(const v_float64x2& a)
+{
+    CV_UNUSED(a);
+    return v_setzero_s32();
+}
+
+inline v_int32x4 v_ceil(const v_float64x2& a)
+{
+    CV_UNUSED(a);
+    return v_setzero_s32();
+}
+
+inline v_int32x4 v_trunc(const v_float64x2& a)
+{
+    CV_UNUSED(a);
+    return v_setzero_s32();
+}
+#endif
 
 
 //////// Dot Product ////////
@@ -2027,7 +2265,7 @@ inline v_int32x4 v_trunc(const v_float32x4& a)
 // 16 >> 32
 inline v_int32x4 v_dotprod(const v_int16x8& a, const v_int16x8& b)
 {
-    int CV_DECL_ALIGNED(32) ptr[8];
+    int CV_DECL_ALIGNED(32) ptr[8] = {0};
     v_int32x4 t1, t2;
     vse32_v_i32m2(ptr, vwmul_vv_i32m2(a.val, b.val));
     v_load_deinterleave(ptr, t1, t2);
@@ -2035,7 +2273,7 @@ inline v_int32x4 v_dotprod(const v_int16x8& a, const v_int16x8& b)
 }
 inline v_int32x4 v_dotprod(const v_int16x8& a, const v_int16x8& b, const v_int32x4& c)
 {
-    int CV_DECL_ALIGNED(32) ptr[8];
+    int CV_DECL_ALIGNED(32) ptr[8] = {0};
     v_int32x4 t1, t2;
     vse32_v_i32m2(ptr, vwmul_vv_i32m2(a.val, b.val));
     v_load_deinterleave(ptr, t1, t2);
@@ -2045,7 +2283,7 @@ inline v_int32x4 v_dotprod(const v_int16x8& a, const v_int16x8& b, const v_int32
 // 32 >> 64
 inline v_int64x2 v_dotprod(const v_int32x4& a, const v_int32x4& b)
 {
-    int64 CV_DECL_ALIGNED(32) ptr[4];
+    int64 CV_DECL_ALIGNED(32) ptr[4] = {0};
     v_int64x2 t1, t2;
     vse64_v_i64m2(ptr, vwmul_vv_i64m2(a.val, b.val));
     v_load_deinterleave(ptr, t1, t2);
@@ -2053,7 +2291,7 @@ inline v_int64x2 v_dotprod(const v_int32x4& a, const v_int32x4& b)
 }
 inline v_int64x2 v_dotprod(const v_int32x4& a, const v_int32x4& b, const v_int64x2& c)
 {
-    int64 CV_DECL_ALIGNED(32) ptr[4];
+    int64 CV_DECL_ALIGNED(32) ptr[4] = {0};
     v_int64x2 t1, t2;
     vse64_v_i64m2(ptr, vwmul_vv_i64m2(a.val, b.val));
     v_load_deinterleave(ptr, t1, t2);
@@ -2063,7 +2301,7 @@ inline v_int64x2 v_dotprod(const v_int32x4& a, const v_int32x4& b, const v_int64
 // 8 >> 32
 inline v_uint32x4 v_dotprod_expand(const v_uint8x16& a, const v_uint8x16& b)
 {
-    unsigned CV_DECL_ALIGNED(32) ptr[16];
+    unsigned CV_DECL_ALIGNED(32) ptr[16] = {0};
     v_uint32x4 t1, t2, t3, t4;
     vse32_v_u32m4(ptr, vqmaccu_vv_u32m4(vzero_u32m4(), a.val, b.val));
     v_load_deinterleave(ptr, t1, t2, t3, t4);
@@ -2072,7 +2310,7 @@ inline v_uint32x4 v_dotprod_expand(const v_uint8x16& a, const v_uint8x16& b)
 inline v_uint32x4 v_dotprod_expand(const v_uint8x16& a, const v_uint8x16& b,
                                    const v_uint32x4& c)
 {
-    unsigned CV_DECL_ALIGNED(32) ptr[16];
+    unsigned CV_DECL_ALIGNED(32) ptr[16] = {0};
     v_uint32x4 t1, t2, t3, t4;
     vse32_v_u32m4(ptr, vqmaccu_vv_u32m4(vzero_u32m4(), a.val, b.val));
     v_load_deinterleave(ptr, t1, t2, t3, t4);
@@ -2081,7 +2319,7 @@ inline v_uint32x4 v_dotprod_expand(const v_uint8x16& a, const v_uint8x16& b,
 
 inline v_int32x4 v_dotprod_expand(const v_int8x16& a, const v_int8x16& b)
 {
-    int CV_DECL_ALIGNED(32) ptr[16];
+    int CV_DECL_ALIGNED(32) ptr[16] = {0};
     v_int32x4 t1, t2, t3, t4;
     vse32_v_i32m4(ptr, vqmacc_vv_i32m4(vzero_i32m4(), a.val, b.val));
     v_load_deinterleave(ptr, t1, t2, t3, t4);
@@ -2090,7 +2328,7 @@ inline v_int32x4 v_dotprod_expand(const v_int8x16& a, const v_int8x16& b)
 inline v_int32x4 v_dotprod_expand(const v_int8x16& a, const v_int8x16& b,
                                   const v_int32x4& c)
 {
-    int CV_DECL_ALIGNED(32) ptr[16];
+    int CV_DECL_ALIGNED(32) ptr[16] = {0};
     v_int32x4 t1, t2, t3, t4;
     vse32_v_i32m4(ptr, vqmacc_vv_i32m4(vzero_i32m4(), a.val, b.val));
     v_load_deinterleave(ptr, t1, t2, t3, t4);
@@ -2100,7 +2338,7 @@ inline v_int32x4 v_dotprod_expand(const v_int8x16& a, const v_int8x16& b,
 // 16 >> 64
 inline v_uint64x2 v_dotprod_expand(const v_uint16x8& a, const v_uint16x8& b)
 {
-    uint64 CV_DECL_ALIGNED(32) ptr[8];
+    uint64 CV_DECL_ALIGNED(32) ptr[8] = {0};
     v_uint64x2 t1, t2, t3, t4;
     vse64_v_u64m4(ptr, vqmaccu_vv_u64m4(vzero_u64m4(), a.val, b.val));
     v_load_deinterleave(ptr, t1, t2, t3, t4);
@@ -2108,7 +2346,7 @@ inline v_uint64x2 v_dotprod_expand(const v_uint16x8& a, const v_uint16x8& b)
 }
 inline v_uint64x2 v_dotprod_expand(const v_uint16x8& a, const v_uint16x8& b, const v_uint64x2& c)
 {
-    uint64 CV_DECL_ALIGNED(32) ptr[8];
+    uint64 CV_DECL_ALIGNED(32) ptr[8] = {0};
     v_uint64x2 t1, t2, t3, t4;
     vse64_v_u64m4(ptr, vqmaccu_vv_u64m4(vzero_u64m4(), a.val, b.val));
     v_load_deinterleave(ptr, t1, t2, t3, t4);
@@ -2117,7 +2355,7 @@ inline v_uint64x2 v_dotprod_expand(const v_uint16x8& a, const v_uint16x8& b, con
 
 inline v_int64x2 v_dotprod_expand(const v_int16x8& a, const v_int16x8& b)
 {
-    int64 CV_DECL_ALIGNED(32) ptr[8];
+    int64 CV_DECL_ALIGNED(32) ptr[8] = {0};
     v_int64x2 t1, t2, t3, t4;
     vse64_v_i64m4(ptr, vqmacc_vv_i64m4(vzero_i64m4(), a.val, b.val));
     v_load_deinterleave(ptr, t1, t2, t3, t4);
@@ -2126,7 +2364,7 @@ inline v_int64x2 v_dotprod_expand(const v_int16x8& a, const v_int16x8& b)
 inline v_int64x2 v_dotprod_expand(const v_int16x8& a, const v_int16x8& b,
                                   const v_int64x2& c)
 {
-    int64 CV_DECL_ALIGNED(32) ptr[8];
+    int64 CV_DECL_ALIGNED(32) ptr[8] = {0};
     v_int64x2 t1, t2, t3, t4;
     vse64_v_i64m4(ptr, vqmacc_vv_i64m4(vzero_i64m4(), a.val, b.val));
     v_load_deinterleave(ptr, t1, t2, t3, t4);
@@ -2147,7 +2385,7 @@ inline v_float64x2 v_dotprod_expand(const v_int32x4& a,   const v_int32x4& b,
 // 16 >> 32
 inline v_int32x4 v_dotprod_fast(const v_int16x8& a, const v_int16x8& b)
 {
-    int CV_DECL_ALIGNED(32) ptr[8];
+    int CV_DECL_ALIGNED(32) ptr[8] = {0};
     vse32_v_i32m2(ptr, vwmul_vv_i32m2(a.val, b.val));
     v_int32x4 t1 = v_load(ptr);
     v_int32x4 t2 = v_load(ptr+4);
@@ -2155,7 +2393,7 @@ inline v_int32x4 v_dotprod_fast(const v_int16x8& a, const v_int16x8& b)
 }
 inline v_int32x4 v_dotprod_fast(const v_int16x8& a, const v_int16x8& b, const v_int32x4& c)
 {
-    int CV_DECL_ALIGNED(32) ptr[8];
+    int CV_DECL_ALIGNED(32) ptr[8] = {0};
     vse32_v_i32m2(ptr, vwmul_vv_i32m2(a.val, b.val));
     v_int32x4 t1 = v_load(ptr);
     v_int32x4 t2 = v_load(ptr+4);
@@ -2165,7 +2403,7 @@ inline v_int32x4 v_dotprod_fast(const v_int16x8& a, const v_int16x8& b, const v_
 // 32 >> 64
 inline v_int64x2 v_dotprod_fast(const v_int32x4& a, const v_int32x4& b)
 {
-    int64 CV_DECL_ALIGNED(32) ptr[4];
+    int64 CV_DECL_ALIGNED(32) ptr[4] = {0};
     vse64_v_i64m2(ptr, vwmul_vv_i64m2(a.val, b.val));
     v_int64x2 t1 = v_load(ptr);
     v_int64x2 t2 = v_load(ptr+2);
@@ -2173,7 +2411,7 @@ inline v_int64x2 v_dotprod_fast(const v_int32x4& a, const v_int32x4& b)
 }
 inline v_int64x2 v_dotprod_fast(const v_int32x4& a, const v_int32x4& b, const v_int64x2& c)
 {
-    int64 CV_DECL_ALIGNED(32) ptr[4];
+    int64 CV_DECL_ALIGNED(32) ptr[4] = {0};
     vse64_v_i64m2(ptr, vwmul_vv_i64m2(a.val, b.val));
     v_int64x2 t1 = v_load(ptr);
     v_int64x2 t2 = v_load(ptr+2);
@@ -2184,7 +2422,7 @@ inline v_int64x2 v_dotprod_fast(const v_int32x4& a, const v_int32x4& b, const v_
 // 8 >> 32
 inline v_uint32x4 v_dotprod_expand_fast(const v_uint8x16& a, const v_uint8x16& b)
 {
-    unsigned CV_DECL_ALIGNED(32) ptr[16];
+    unsigned CV_DECL_ALIGNED(32) ptr[16] = {0};
     vse32_v_u32m4(ptr, vqmaccu_vv_u32m4(vzero_u32m4(), a.val, b.val));
     v_uint32x4 t1 = v_load(ptr);
     v_uint32x4 t2 = v_load(ptr+4);
@@ -2194,7 +2432,7 @@ inline v_uint32x4 v_dotprod_expand_fast(const v_uint8x16& a, const v_uint8x16& b
 }
 inline v_uint32x4 v_dotprod_expand_fast(const v_uint8x16& a, const v_uint8x16& b, const v_uint32x4& c)
 {
-    unsigned CV_DECL_ALIGNED(32) ptr[16];
+    unsigned CV_DECL_ALIGNED(32) ptr[16] = {0};
     vse32_v_u32m4(ptr, vqmaccu_vv_u32m4(vzero_u32m4(), a.val, b.val));
     v_uint32x4 t1 = v_load(ptr);
     v_uint32x4 t2 = v_load(ptr+4);
@@ -2204,7 +2442,7 @@ inline v_uint32x4 v_dotprod_expand_fast(const v_uint8x16& a, const v_uint8x16& b
 }
 inline v_int32x4 v_dotprod_expand_fast(const v_int8x16& a, const v_int8x16& b)
 {
-    int CV_DECL_ALIGNED(32) ptr[16];
+    int CV_DECL_ALIGNED(32) ptr[16] = {0};
     vse32_v_i32m4(ptr, vqmacc_vv_i32m4(vzero_i32m4(), a.val, b.val));
     v_int32x4 t1 = v_load(ptr);
     v_int32x4 t2 = v_load(ptr+4);
@@ -2214,7 +2452,7 @@ inline v_int32x4 v_dotprod_expand_fast(const v_int8x16& a, const v_int8x16& b)
 }
 inline v_int32x4 v_dotprod_expand_fast(const v_int8x16& a, const v_int8x16& b, const v_int32x4& c)
 {
-    int CV_DECL_ALIGNED(32) ptr[16];
+    int CV_DECL_ALIGNED(32) ptr[16] = {0};
     vse32_v_i32m4(ptr, vqmacc_vv_i32m4(vzero_i32m4(), a.val, b.val));
     v_int32x4 t1 = v_load(ptr);
     v_int32x4 t2 = v_load(ptr+4);
@@ -2226,7 +2464,7 @@ inline v_int32x4 v_dotprod_expand_fast(const v_int8x16& a, const v_int8x16& b, c
 // 16 >> 64
 inline v_uint64x2 v_dotprod_expand_fast(const v_uint16x8& a, const v_uint16x8& b)
 {
-    uint64 CV_DECL_ALIGNED(32) ptr[8];
+    uint64 CV_DECL_ALIGNED(32) ptr[8] = {0};
     vse64_v_u64m4(ptr, vqmaccu_vv_u64m4(vzero_u64m4(), a.val, b.val));
     v_uint64x2 t1 = v_load(ptr);
     v_uint64x2 t2 = v_load(ptr+2);
@@ -2236,7 +2474,7 @@ inline v_uint64x2 v_dotprod_expand_fast(const v_uint16x8& a, const v_uint16x8& b
 }
 inline v_uint64x2 v_dotprod_expand_fast(const v_uint16x8& a, const v_uint16x8& b, const v_uint64x2& c)
 {
-    uint64 CV_DECL_ALIGNED(32) ptr[8];
+    uint64 CV_DECL_ALIGNED(32) ptr[8] = {0};
     vse64_v_u64m4(ptr, vqmaccu_vv_u64m4(vzero_u64m4(), a.val, b.val));
     v_uint64x2 t1 = v_load(ptr);
     v_uint64x2 t2 = v_load(ptr+2);
@@ -2246,7 +2484,7 @@ inline v_uint64x2 v_dotprod_expand_fast(const v_uint16x8& a, const v_uint16x8& b
 }
 inline v_int64x2 v_dotprod_expand_fast(const v_int16x8& a, const v_int16x8& b)
 {
-    int64 CV_DECL_ALIGNED(32) ptr[8];
+    int64 CV_DECL_ALIGNED(32) ptr[8] = {0};
     vse64_v_i64m4(ptr, vqmacc_vv_i64m4(vzero_i64m4(), a.val, b.val));
     v_int64x2 t1 = v_load(ptr);
     v_int64x2 t2 = v_load(ptr+2);
@@ -2256,7 +2494,7 @@ inline v_int64x2 v_dotprod_expand_fast(const v_int16x8& a, const v_int16x8& b)
 }
 inline v_int64x2 v_dotprod_expand_fast(const v_int16x8& a, const v_int16x8& b, const v_int64x2& c)
 {
-    int64 CV_DECL_ALIGNED(32) ptr[8];
+    int64 CV_DECL_ALIGNED(32) ptr[8] = {0};
     vse64_v_i64m4(ptr, vqmacc_vv_i64m4(vzero_i64m4(), a.val, b.val));
     v_int64x2 t1 = v_load(ptr);
     v_int64x2 t2 = v_load(ptr+2);
@@ -2298,7 +2536,7 @@ inline v_float32x4 v_matmuladd(const v_float32x4& v, const v_float32x4& m0,
 #define OPENCV_HAL_IMPL_RVV_MUL_EXPAND(_Tpvec, _Tpwvec, _Tpw, suffix, wmul, width) \
 inline void v_mul_expand(const _Tpvec& a, const _Tpvec& b, _Tpwvec& c, _Tpwvec& d) \
 { \
-    _Tpw CV_DECL_ALIGNED(32) ptr[_Tpwvec::nlanes*2]; \
+    _Tpw CV_DECL_ALIGNED(32) ptr[_Tpwvec::nlanes*2] = {0}; \
     vse##width##_v_##suffix##m2(ptr, wmul(a.val, b.val)); \
     c.val = vle##width##_v_##suffix##m1(ptr); \
     d.val = vle##width##_v_##suffix##m1(ptr+_Tpwvec::nlanes); \
