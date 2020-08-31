@@ -181,13 +181,13 @@ OPENCV_HAL_IMPL_RVV_NATIVE_NCLIP(vint32mf2_t, vint64m1_t, vnclip_wx_i32mf2)
 
 inline vuint8mf2_t vreinterpret_v_i8mf2_u8mf2 (vint8mf2_t src)
 {
-    CV_UNUSED(src);    
+    CV_UNUSED(src);
     vuint8mf2_t tmp;
     return tmp;
 }
 inline vuint16mf2_t vreinterpret_v_i16mf2_u16mf2 (vint16mf2_t src)
 {
-    CV_UNUSED(src);    
+    CV_UNUSED(src);
     vuint16mf2_t tmp;
     return tmp;
 }
