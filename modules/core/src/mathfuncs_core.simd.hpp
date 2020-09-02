@@ -71,7 +71,7 @@ static inline float atan_f32(float y, float x)
 }
 #endif
 
-#if CV_SIMD
+#if CV_SIMD && !CV_RVV // v_atan_f32 is not supported by RVV
 
 struct v_atan_f32
 {
@@ -124,7 +124,7 @@ static void fastAtan32f_(const float *Y, const float *X, float *angle, int len, 
 {
     float scale = angleInDegrees ? 1.f : (float)(CV_PI/180);
     int i = 0;
-#if CV_SIMD
+#if CV_SIMD && !CV_RVV // v_atan_f32 is not supported by RVV
     const int VECSZ = v_float32::nlanes;
     v_atan_f32 v(scale);
 
