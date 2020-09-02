@@ -207,6 +207,18 @@ struct v_uint8x16
         uchar v[] = {v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15};
         val = vle8_v_u8m1(v);
     }
+    v_uint8x16(const v_uint8x16& a) { val = a.val; }
+    v_uint8x16(v_uint8x16&& a) { val = a.val; }
+    v_uint8x16& operator=(const v_uint8x16& a)
+    {
+        val = a.val;
+        return *this;
+    }
+    v_uint8x16& operator=(v_uint8x16&& a)
+    {
+        val = a.val;
+        return *this;
+    }
     uchar get0() const
     {
         return vmv_x_s_u8m1_u8(val);
@@ -228,6 +240,18 @@ struct v_int8x16
         schar v[] = {v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15};
         val = vle8_v_i8m1(v);
     }
+    v_int8x16(const v_int8x16& a) { val = a.val; }
+    v_int8x16(v_int8x16&& a) { val = a.val; }
+    v_int8x16& operator=(const v_int8x16& a)
+    {
+        val = a.val;
+        return *this;
+    }
+    v_int8x16& operator=(v_int8x16&& a)
+    {
+        val = a.val;
+        return *this;
+    }
     schar get0() const
     {
         return vmv_x_s_i8m1_i8(val);
@@ -247,6 +271,18 @@ struct v_uint16x8
     {
         ushort v[] = {v0, v1, v2, v3, v4, v5, v6, v7};
         val = vle16_v_u16m1(v);
+    }
+    v_uint16x8(const v_uint16x8& a) { val = a.val; }
+    v_uint16x8(v_uint16x8&& a) { val = a.val; }
+    v_uint16x8& operator=(const v_uint16x8& a)
+    {
+        val = a.val;
+        return *this;
+    }
+    v_uint16x8& operator=(v_uint16x8&& a)
+    {
+        val = a.val;
+        return *this;
     }
     ushort get0() const
     {
@@ -268,6 +304,18 @@ struct v_int16x8
         short v[] = {v0, v1, v2, v3, v4, v5, v6, v7};
         val = vle16_v_i16m1(v);
     }
+    v_int16x8(const v_int16x8& a) { val = a.val; }
+    v_int16x8(v_int16x8&& a) { val = a.val; }
+    v_int16x8& operator=(const v_int16x8& a)
+    {
+        val = a.val;
+        return *this;
+    }
+    v_int16x8& operator=(v_int16x8&& a)
+    {
+        val = a.val;
+        return *this;
+    }
     short get0() const
     {
         return vmv_x_s_i16m1_i16(val);
@@ -287,6 +335,18 @@ struct v_uint32x4
     {
         unsigned v[] = {v0, v1, v2, v3};
         val = vle32_v_u32m1(v);
+    }
+    v_uint32x4(const v_uint32x4& a) { val = a.val; }
+    v_uint32x4(v_uint32x4&& a) { val = a.val; }
+    v_uint32x4& operator=(const v_uint32x4& a)
+    {
+        val = a.val;
+        return *this;
+    }
+    v_uint32x4& operator=(v_uint32x4&& a)
+    {
+        val = a.val;
+        return *this;
     }
     unsigned get0() const
     {
@@ -308,6 +368,18 @@ struct v_int32x4
         int v[] = {v0, v1, v2, v3};
         val = vle32_v_i32m1(v);
     }
+    v_int32x4(const v_int32x4& a) { val = a.val; }
+    v_int32x4(v_int32x4&& a) { val = a.val; }
+    v_int32x4& operator=(const v_int32x4& a)
+    {
+        val = a.val;
+        return *this;
+    }
+    v_int32x4& operator=(v_int32x4&& a)
+    {
+        val = a.val;
+        return *this;
+    }
     int get0() const
     {
         return vmv_x_s_i32m1_i32(val);
@@ -326,6 +398,18 @@ struct v_float32x4
     {
         float v[] = {v0, v1, v2, v3};
         val = vle32_v_f32m1(v);
+    }
+    v_float32x4(const v_float32x4& a) { val = a.val; }
+    v_float32x4(v_float32x4&& a) { val = a.val; }
+    v_float32x4& operator=(const v_float32x4& a)
+    {
+        val = a.val;
+        return *this;
+    }
+    v_float32x4& operator=(v_float32x4&& a)
+    {
+        val = a.val;
+        return *this;
     }
     float get0() const
     {
@@ -346,6 +430,18 @@ struct v_uint64x2
         uint64 v[] = {v0, v1};
         val = vle64_v_u64m1(v);
     }
+    v_uint64x2(const v_uint64x2& a) { val = a.val; }
+    v_uint64x2(v_uint64x2&& a) { val = a.val; }
+    v_uint64x2& operator=(const v_uint64x2& a)
+    {
+        val = a.val;
+        return *this;
+    }
+    v_uint64x2& operator=(v_uint64x2&& a)
+    {
+        val = a.val;
+        return *this;
+    }
     uint64 get0() const
     {
         return vmv_x_s_u64m1_u64(val);
@@ -364,6 +460,18 @@ struct v_int64x2
     {
         int64 v[] = {v0, v1};
         val = vle64_v_i64m1(v);
+    }
+    v_int64x2(const v_int64x2& a) { val = a.val; }
+    v_int64x2(v_int64x2&& a) { val = a.val; }
+    v_int64x2& operator=(const v_int64x2& a)
+    {
+        val = a.val;
+        return *this;
+    }
+    v_int64x2& operator=(v_int64x2&& a)
+    {
+        val = a.val;
+        return *this;
     }
     int64 get0() const
     {
@@ -384,6 +492,18 @@ struct v_float64x2
     {
         double v[] = {v0, v1};
         val = vle64_v_f64m1(v);
+    }
+    v_float64x2(const v_float64x2& a) { val = a.val; }
+    v_float64x2(v_float64x2&& a) { val = a.val; }
+    v_float64x2& operator=(const v_float64x2& a)
+    {
+        val = a.val;
+        return *this;
+    }
+    v_float64x2& operator=(v_float64x2&& a)
+    {
+        val = a.val;
+        return *this;
     }
     double get0() const
     {
