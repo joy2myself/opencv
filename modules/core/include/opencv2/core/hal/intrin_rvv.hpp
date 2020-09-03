@@ -614,6 +614,15 @@ OPENCV_HAL_IMPL_RVV_TWO_TIMES_REINTERPRET(int16x8, float64x2, s16, f64, i16, f64
 OPENCV_HAL_IMPL_RVV_TWO_TIMES_REINTERPRET(int32x4, float64x2, s32, f64, i32, f64, i64);
 #endif
 
+inline v_float32x4 v_reinterpret_as_f32(const v_float64x2& v)
+{
+    return v_float32x4(vreinterpret_v_i32m1_f32m1(vreinterpret_v_i64m1_i32m1(vreinterpret_v_f64m1_i64m1(v.val))));
+}
+inline v_float64x2 v_reinterpret_as_f64(const v_float32x4& v)
+{
+    return v_float64x2(vreinterpret_v_i64m1_f64m1(vreinterpret_v_i32m1_i64m1(vreinterpret_v_f32m1_i32m1(v.val))));
+}
+
 ////////////// Extract //////////////
 
 #define OPENCV_HAL_IMPL_RVV_EXTRACT(_Tpvec, _Tp, suffix, vmv) \
@@ -2192,26 +2201,26 @@ static const unsigned char popCountTable[] =
     4, 5, 5, 6, 5, 6, 6, 7, 5, 6, 6, 7, 6, 7, 7, 8,
 };
 
-#define OPENCV_HAL_IMPL_RVV_POPCOUNT_OP(_Tpvec, _Tp, suffix) \
-inline _Tpvec v_popcount(const _Tpvec& a) \
+#define OPENCV_HAL_IMPL_RVV_POPCOUNT_OP(_rTpvec, _Tpvec, _rTp, _Tp, suffix) \
+inline _rTpvec v_popcount(const _Tpvec& a) \
 { \
     uchar CV_DECL_ALIGNED(32) ptra[16] = {0}; \
     v_store(ptra, v_reinterpret_as_u8(a)); \
-    _Tp CV_DECL_ALIGNED(32) ptr[_Tpvec::nlanes] = {0}; \
+    _rTp CV_DECL_ALIGNED(32) ptr[_Tpvec::nlanes] = {0}; \
     v_store(ptr, v_setzero_##suffix()); \
     for (int i = 0; i < _Tpvec::nlanes*(int)sizeof(_Tp); i++) \
         ptr[i/sizeof(_Tp)] += popCountTable[ptra[i]]; \
     return v_load(ptr); \
 }
 
-OPENCV_HAL_IMPL_RVV_POPCOUNT_OP(v_uint8x16, uchar, u8)
-OPENCV_HAL_IMPL_RVV_POPCOUNT_OP(v_int8x16, schar, s8)
-OPENCV_HAL_IMPL_RVV_POPCOUNT_OP(v_uint16x8, ushort, u16)
-OPENCV_HAL_IMPL_RVV_POPCOUNT_OP(v_int16x8, short, s16)
-OPENCV_HAL_IMPL_RVV_POPCOUNT_OP(v_uint32x4, unsigned, u32)
-OPENCV_HAL_IMPL_RVV_POPCOUNT_OP(v_int32x4, int, s32)
-OPENCV_HAL_IMPL_RVV_POPCOUNT_OP(v_uint64x2, uint64, u64)
-OPENCV_HAL_IMPL_RVV_POPCOUNT_OP(v_int64x2, int64, s64)
+OPENCV_HAL_IMPL_RVV_POPCOUNT_OP(v_uint8x16, v_uint8x16, uchar, uchar, u8)
+OPENCV_HAL_IMPL_RVV_POPCOUNT_OP(v_uint8x16, v_int8x16, uchar, schar, u8)
+OPENCV_HAL_IMPL_RVV_POPCOUNT_OP(v_uint16x8, v_uint16x8, ushort, ushort, u16)
+OPENCV_HAL_IMPL_RVV_POPCOUNT_OP(v_uint16x8, v_int16x8, ushort, short, u16)
+OPENCV_HAL_IMPL_RVV_POPCOUNT_OP(v_uint32x4, v_uint32x4, unsigned, unsigned, u32)
+OPENCV_HAL_IMPL_RVV_POPCOUNT_OP(v_uint32x4, v_int32x4, unsigned, int, u32)
+OPENCV_HAL_IMPL_RVV_POPCOUNT_OP(v_uint64x2, v_uint64x2, uint64, uint64, u64)
+OPENCV_HAL_IMPL_RVV_POPCOUNT_OP(v_uint64x2, v_int64x2, uint64, int64, u64)
 
 //////////// SignMask ////////////
 
