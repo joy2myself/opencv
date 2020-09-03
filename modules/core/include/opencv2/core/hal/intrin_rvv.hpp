@@ -2224,54 +2224,54 @@ OPENCV_HAL_IMPL_RVV_POPCOUNT_OP(v_uint64x2, v_int64x2, uint64, int64, u64)
 
 //////////// SignMask ////////////
 
-#define OPENCV_HAL_IMPL_RVV_SIGNMASK_OP(_Tpvec) \
+#define OPENCV_HAL_IMPL_RVV_SIGNMASK_OP(_Tpvec, _Tp, suffix) \
 inline int v_signmask(const _Tpvec& a) \
 { \
     int mask = 0; \
-    int CV_DECL_ALIGNED(32) ptr[4] = {0}; \
-    v_store(ptr, v_reinterpret_as_s32(a)); \
+    _Tp CV_DECL_ALIGNED(32) ptr[_Tpvec::nlanes] = {0}; \
+    v_store(ptr, v_reinterpret_as_##suffix(a)); \
     for( int i = 0; i < _Tpvec::nlanes; i++ ) \
-        mask |= (ptr[i] < 0) << i; \
+        mask |= (int(ptr[i]) < 0) << i; \
     return mask; \
 }
 
-OPENCV_HAL_IMPL_RVV_SIGNMASK_OP(v_uint8x16)
-OPENCV_HAL_IMPL_RVV_SIGNMASK_OP(v_int8x16)
-OPENCV_HAL_IMPL_RVV_SIGNMASK_OP(v_uint16x8)
-OPENCV_HAL_IMPL_RVV_SIGNMASK_OP(v_int16x8)
-OPENCV_HAL_IMPL_RVV_SIGNMASK_OP(v_uint32x4)
-OPENCV_HAL_IMPL_RVV_SIGNMASK_OP(v_int32x4)
-OPENCV_HAL_IMPL_RVV_SIGNMASK_OP(v_float32x4)
-OPENCV_HAL_IMPL_RVV_SIGNMASK_OP(v_uint64x2)
-OPENCV_HAL_IMPL_RVV_SIGNMASK_OP(v_int64x2)
+OPENCV_HAL_IMPL_RVV_SIGNMASK_OP(v_uint8x16, uchar, u8)
+OPENCV_HAL_IMPL_RVV_SIGNMASK_OP(v_int8x16, schar, s8)
+OPENCV_HAL_IMPL_RVV_SIGNMASK_OP(v_uint16x8, ushort, u16)
+OPENCV_HAL_IMPL_RVV_SIGNMASK_OP(v_int16x8, short, s16)
+OPENCV_HAL_IMPL_RVV_SIGNMASK_OP(v_uint32x4, unsigned, u32)
+OPENCV_HAL_IMPL_RVV_SIGNMASK_OP(v_int32x4, int, s32)
+OPENCV_HAL_IMPL_RVV_SIGNMASK_OP(v_float32x4, float, f32)
+OPENCV_HAL_IMPL_RVV_SIGNMASK_OP(v_uint64x2, uint64, u64)
+OPENCV_HAL_IMPL_RVV_SIGNMASK_OP(v_int64x2, int64, s64)
 #if CV_SIMD128_64F
-OPENCV_HAL_IMPL_RVV_SIGNMASK_OP(v_float64x2)
+OPENCV_HAL_IMPL_RVV_SIGNMASK_OP(v_float64x2, double, f64)
 #endif
 
 //////////// Scan forward ////////////
 
-#define OPENCV_HAL_IMPL_RVV_SCAN_FORWOARD_OP(_Tpvec) \
+#define OPENCV_HAL_IMPL_RVV_SCAN_FORWOARD_OP(_Tpvec, _Tp, suffix) \
 inline int v_scan_forward(const _Tpvec& a) \
 { \
-    int CV_DECL_ALIGNED(32) ptr[4] = {0}; \
-    v_store(ptr, v_reinterpret_as_s32(a)); \
+    _Tp CV_DECL_ALIGNED(32) ptr[_Tpvec::nlanes] = {0}; \
+    v_store(ptr, v_reinterpret_as_##suffix(a)); \
     for (int i = 0; i < _Tpvec::nlanes; i++) \
-        if(ptr[i] < 0) \
+        if(int(ptr[i]) < 0) \
             return i; \
     return 0; \
 }
 
-OPENCV_HAL_IMPL_RVV_SCAN_FORWOARD_OP(v_uint8x16)
-OPENCV_HAL_IMPL_RVV_SCAN_FORWOARD_OP(v_int8x16)
-OPENCV_HAL_IMPL_RVV_SCAN_FORWOARD_OP(v_uint16x8)
-OPENCV_HAL_IMPL_RVV_SCAN_FORWOARD_OP(v_int16x8)
-OPENCV_HAL_IMPL_RVV_SCAN_FORWOARD_OP(v_uint32x4)
-OPENCV_HAL_IMPL_RVV_SCAN_FORWOARD_OP(v_int32x4)
-OPENCV_HAL_IMPL_RVV_SCAN_FORWOARD_OP(v_float32x4)
-OPENCV_HAL_IMPL_RVV_SCAN_FORWOARD_OP(v_uint64x2)
-OPENCV_HAL_IMPL_RVV_SCAN_FORWOARD_OP(v_int64x2)
+OPENCV_HAL_IMPL_RVV_SCAN_FORWOARD_OP(v_uint8x16, uchar, u8)
+OPENCV_HAL_IMPL_RVV_SCAN_FORWOARD_OP(v_int8x16, schar, s8)
+OPENCV_HAL_IMPL_RVV_SCAN_FORWOARD_OP(v_uint16x8, ushort, u16)
+OPENCV_HAL_IMPL_RVV_SCAN_FORWOARD_OP(v_int16x8, short, s16)
+OPENCV_HAL_IMPL_RVV_SCAN_FORWOARD_OP(v_uint32x4, unsigned, u32)
+OPENCV_HAL_IMPL_RVV_SCAN_FORWOARD_OP(v_int32x4, int, s32)
+OPENCV_HAL_IMPL_RVV_SCAN_FORWOARD_OP(v_float32x4, float, f32)
+OPENCV_HAL_IMPL_RVV_SCAN_FORWOARD_OP(v_uint64x2, uint64, u64)
+OPENCV_HAL_IMPL_RVV_SCAN_FORWOARD_OP(v_int64x2, int64, s64)
 #if CV_SIMD128_64F
-OPENCV_HAL_IMPL_RVV_SCAN_FORWOARD_OP(v_float64x2)
+OPENCV_HAL_IMPL_RVV_SCAN_FORWOARD_OP(v_float64x2, double, f64)
 #endif
 
 //////////// Pack triplets ////////////
