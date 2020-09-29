@@ -17,6 +17,7 @@ CV_CPU_OPTIMIZATION_HAL_NAMESPACE_BEGIN
 
 //////////// Unsupported native intrinsics in C++ ////////////
 
+/*
 class vuint8mf2_t
 {
     uchar v[8] = {0};
@@ -191,6 +192,8 @@ inline vuint16mf2_t vreinterpret_v_i16mf2_u16mf2 (vint16mf2_t src)
     vuint16mf2_t tmp;
     return tmp;
 }
+
+*/
 
 //////////// Types ////////////
 
