@@ -9,11 +9,13 @@
 
 #include <iostream>
 #include <fstream>
-#include <string.h>
+#include <string>
+#include <map>
 
 #include <ade/util/iota_range.hpp> // used in the vector<</>>
 
 #include "compiler/gmodel.hpp"
+#include "opencv2/gapi/render/render_types.hpp"
 
 #if (defined _WIN32 || defined _WIN64) && defined _MSC_VER
 #pragma warning(disable: 4702)
@@ -45,6 +47,7 @@ namespace I {
         virtual OStream& operator<< (int) = 0;
         //virtual OStream& operator<< (std::size_t) = 0;
         virtual OStream& operator<< (uint32_t) = 0;
+        virtual OStream& operator<< (uint64_t) = 0;
         virtual OStream& operator<< (float) = 0;
         virtual OStream& operator<< (double) = 0;
         virtual OStream& operator<< (const std::string&) = 0;
@@ -54,6 +57,7 @@ namespace I {
         virtual ~IStream() = default;
 
         virtual IStream& operator>> (bool &) = 0;
+        virtual IStream& operator>> (std::vector<bool>::reference) = 0;
         virtual IStream& operator>> (char &) = 0;
         virtual IStream& operator>> (unsigned char &) = 0;
         virtual IStream& operator>> (short &) = 0;
@@ -63,6 +67,7 @@ namespace I {
         virtual IStream& operator>> (double &) = 0;
         //virtual IStream& operator>> (std::size_t &) = 0;
         virtual IStream& operator >> (uint32_t &) = 0;
+        virtual IStream& operator >> (uint64_t &) = 0;
         virtual IStream& operator>> (std::string &) = 0;
     };
 } // namespace I
@@ -89,7 +94,29 @@ GAPI_EXPORTS I::IStream& operator>> (I::IStream& is,       cv::Scalar &s);
 GAPI_EXPORTS I::OStream& operator<< (I::OStream& os, const cv::Mat &m);
 GAPI_EXPORTS I::IStream& operator>> (I::IStream& is,       cv::Mat &m);
 
+GAPI_EXPORTS I::OStream& operator<< (I::OStream& os, const cv::gapi::wip::draw::Text &t);
+GAPI_EXPORTS I::IStream& operator>> (I::IStream& is,       cv::gapi::wip::draw::Text &t);
 
+GAPI_EXPORTS I::OStream& operator<< (I::OStream&, const cv::gapi::wip::draw::FText &);
+GAPI_EXPORTS I::IStream& operator>> (I::IStream&,       cv::gapi::wip::draw::FText &);
+
+GAPI_EXPORTS I::OStream& operator<< (I::OStream& os, const cv::gapi::wip::draw::Circle &c);
+GAPI_EXPORTS I::IStream& operator>> (I::IStream& is,       cv::gapi::wip::draw::Circle &c);
+
+GAPI_EXPORTS I::OStream& operator<< (I::OStream& os, const cv::gapi::wip::draw::Rect &r);
+GAPI_EXPORTS I::IStream& operator>> (I::IStream& is,       cv::gapi::wip::draw::Rect &r);
+
+GAPI_EXPORTS I::OStream& operator<< (I::OStream& os, const cv::gapi::wip::draw::Image &i);
+GAPI_EXPORTS I::IStream& operator>> (I::IStream& is,       cv::gapi::wip::draw::Image &i);
+
+GAPI_EXPORTS I::OStream& operator<< (I::OStream& os, const cv::gapi::wip::draw::Mosaic &m);
+GAPI_EXPORTS I::IStream& operator>> (I::IStream& is,       cv::gapi::wip::draw::Mosaic &m);
+
+GAPI_EXPORTS I::OStream& operator<< (I::OStream& os, const cv::gapi::wip::draw::Poly &p);
+GAPI_EXPORTS I::IStream& operator>> (I::IStream& is,       cv::gapi::wip::draw::Poly &p);
+
+GAPI_EXPORTS I::OStream& operator<< (I::OStream& os, const cv::gapi::wip::draw::Line &l);
+GAPI_EXPORTS I::IStream& operator>> (I::IStream& is,       cv::gapi::wip::draw::Line &l);
 
 // G-API types /////////////////////////////////////////////////////////////////
 
@@ -120,7 +147,6 @@ GAPI_EXPORTS I::IStream& operator>> (I::IStream& is,       cv::GArg &arg);
 //Forward declaration
 //I::OStream& operator<< (I::OStream& os, const cv::GRunArg &arg);
 //I::IStream& operator>> (I::IStream& is, cv::GRunArg &arg);
-
 
 GAPI_EXPORTS I::OStream& operator<< (I::OStream& os, const cv::GKernel &k);
 GAPI_EXPORTS I::IStream& operator>> (I::IStream& is,       cv::GKernel &k);
@@ -167,6 +193,14 @@ GAPI_EXPORTS void serialize( I::OStream& os
                            , const ade::Graph &g
                            , const std::vector<ade::NodeHandle> &nodes);
 
+// The top-level serialization routine.
+// Note it is just a single function which takes a GModel and a list of nodes
+// and writes the data to the stream (recursively)
+GAPI_EXPORTS void serialize( I::OStream& os
+                           , const ade::Graph &g
+                           , const cv::gimpl::Protocol &p
+                           , const std::vector<ade::NodeHandle> &nodes);
+
 // The top-level deserialization routineS.
 // Unfortunately the deserialization is a two-step process:
 // 1. First we decode a stream into some intermediate representation
@@ -186,6 +220,28 @@ GAPI_EXPORTS void serialize( I::OStream& os
 // on every compilation process issued for this GComputation.
 GAPI_EXPORTS GSerialized deserialize(I::IStream& is);
 GAPI_EXPORTS void reconstruct(const GSerialized &s, ade::Graph &g);
+
+// Generic: map serialization ////////////////////////////////////////
+template<typename K, typename V>
+I::OStream& operator<< (I::OStream& os, const std::map<K, V> &m) {
+    const uint32_t sz = static_cast<uint32_t>(m.size()); // explicitly specify type
+    os << sz;
+    for (const auto& it : m) os << it.first << it.second;
+    return os;
+}
+template<typename K, typename V>
+I::IStream& operator>> (I::IStream& is, std::map<K, V> &m) {
+    m.clear();
+    uint32_t sz = 0u;
+    is >> sz;
+    for (std::size_t i = 0; i < sz; ++i) {
+        K k{};
+        V v{};
+        is >> k >> v;
+        m[k] = v;
+    }
+    return is;
+}
 
 // Legacy //////////////////////////////////////////////////////////////////////
 // Generic: unordered_map serialization ////////////////////////////////////////
@@ -304,6 +360,7 @@ public:
     virtual I::OStream& operator<< (double) override;
     virtual I::OStream& operator<< (const std::string&) override;
     virtual I::OStream& operator<< (uint32_t) override;
+    virtual I::OStream& operator<< (uint64_t) override;
 };
 
 class GAPI_EXPORTS ByteMemoryInStream final: public I::IStream {
@@ -319,6 +376,7 @@ public:
     explicit ByteMemoryInStream(const std::vector<char> &data);
 
     virtual I::IStream& operator>> (bool &) override;
+    virtual I::IStream& operator>> (std::vector<bool>::reference) override;
     virtual I::IStream& operator>> (char &) override;
     virtual I::IStream& operator>> (unsigned char &) override;
     virtual I::IStream& operator>> (short &) override;
@@ -328,6 +386,7 @@ public:
     virtual I::IStream& operator>> (double &) override;
     //virtual I::IStream& operator>> (std::size_t &) override;
     virtual I::IStream& operator >> (uint32_t &) override;
+    virtual I::IStream& operator >> (uint64_t &) override;
     virtual I::IStream& operator>> (std::string &) override;
 };
 

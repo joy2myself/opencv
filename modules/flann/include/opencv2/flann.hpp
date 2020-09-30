@@ -95,6 +95,8 @@ using ::cvflann::MaxDistance;
 using ::cvflann::HammingLUT;
 using ::cvflann::Hamming;
 using ::cvflann::Hamming2;
+using ::cvflann::DNAmmingLUT;
+using ::cvflann::DNAmming2;
 using ::cvflann::HistIntersectionDistance;
 using ::cvflann::HellingerDistance;
 using ::cvflann::ChiSquareDistance;
@@ -130,6 +132,14 @@ performed using library calls, if available. Lookup table implementation is used
 
 cv::flann::Hamming2 - %Hamming distance functor. Population count is
 implemented in 12 arithmetic operations (one of which is multiplication).
+
+cv::flann::DNAmmingLUT -  %Adaptation of the Hamming distance functor to DNA comparison.
+As the four bases A, C, G, T of the DNA (or A, G, C, U for RNA) can be coded on 2 bits,
+it counts the bits pairs differences between two sequences using a lookup table implementation.
+
+cv::flann::DNAmming2 - %Adaptation of the Hamming distance functor to DNA comparison.
+Bases differences count are vectorised thanks to arithmetic operations using standard
+registers (AVX2 and AVX-512 should come in a near future).
 
 cv::flann::HistIntersectionDistance - The histogram
 intersection distance functor.
@@ -220,14 +230,8 @@ public:
                 int branching = 32,
                 int iterations = 11,
                 flann_centers_init_t centers_init = CENTERS_RANDOM,
-                float cb_index = 0.2 );
-
-            KMeansIndexParams(
-                int branching,
-                int iterations,
-                flann_centers_init_t centers_init,
-                float cb_index,
-                int trees );
+                float cb_index = 0.2,
+                int trees = 1);
         };
         @endcode
         - **CompositeIndexParams** When using a parameters object of this type the index created
