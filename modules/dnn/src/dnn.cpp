@@ -1585,7 +1585,9 @@ struct Net::Impl : public detail::NetImplBase
     {
         CV_TRACE_FUNCTION();
         if (preferableBackend == DNN_BACKEND_OPENCV)
+        {
             CV_Assert(preferableTarget == DNN_TARGET_CPU || IS_DNN_OPENCL_TARGET(preferableTarget));
+        }
         else if (preferableBackend == DNN_BACKEND_HALIDE)
             initHalideBackend();
         else if (preferableBackend == DNN_BACKEND_INFERENCE_ENGINE_NN_BUILDER_2019)
@@ -2225,7 +2227,9 @@ struct Net::Impl : public detail::NetImplBase
 
                     auto ieInpNode = inputNodes[i].dynamicCast<InfEngineNgraphNode>();
                     CV_Assert(oid < ieInpNode->node->get_output_size());
-#if INF_ENGINE_VER_MAJOR_GT(INF_ENGINE_RELEASE_2020_3)
+#if INF_ENGINE_VER_MAJOR_GT(INF_ENGINE_RELEASE_2020_4)
+                    inputNodes[i] = Ptr<BackendNode>(new InfEngineNgraphNode(ieInpNode->node));
+#elif INF_ENGINE_VER_MAJOR_GT(INF_ENGINE_RELEASE_2020_3)
                     inputNodes[i] = Ptr<BackendNode>(new InfEngineNgraphNode(ieInpNode->node->get_output_as_single_output_node(oid)));
 #else
                     inputNodes[i] = Ptr<BackendNode>(new InfEngineNgraphNode(ieInpNode->node->get_output_as_single_output_node(oid, false)));
@@ -2729,6 +2733,7 @@ struct Net::Impl : public detail::NetImplBase
                                 bool fuse_eltwise = false, fuse_activation = false;
 
                                 if (IS_DNN_OPENCL_TARGET(preferableTarget) && !nextFusabeleActivLayer.empty() &&
+                                    nextData &&
                                     (!nextData->type.compare("ReLU") ||
                                      !nextData->type.compare("ChannelsPReLU") ||
                                      !nextData->type.compare("Power")) &&
@@ -2751,7 +2756,7 @@ struct Net::Impl : public detail::NetImplBase
                                     if (currLayer->tryFuse(layer))
                                     {
                                         fuse_eltwise = true; /* eltwise was successfully fused */
-                                        if (!nextFusabeleActivLayer.empty())
+                                        if (!nextFusabeleActivLayer.empty() && nextData)
                                         {
                                             if ((!nextData->type.compare("ReLU") ||
                                                  !nextData->type.compare("ReLU6") ||
@@ -2772,6 +2777,7 @@ struct Net::Impl : public detail::NetImplBase
                                 CV_Assert(!fuse_activation || fuse_eltwise); /* cannot fuse activation without eltwise */
                                 if(fuse_eltwise && fuse_activation)
                                 {
+                                    CV_Assert(nextData);
                                     CV_Assert_N(biasLayerData->outputBlobsWrappers.size() == 1, ld.inputBlobsWrappers.size() == 1);
                                     ld.inputBlobsWrappers.push_back(biasLayerData->outputBlobsWrappers[0]);
                                     printf_(("\tfused with %s\n", nextEltwiseLayer->name.c_str()));

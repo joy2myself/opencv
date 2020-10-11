@@ -214,4 +214,45 @@ TEST(GOpaque_OpaqueRef, TestMov)
     EXPECT_EQ(test, ref.rref<I>());         // ref = test
     EXPECT_NE(test, mov.rref<I>());         // ref lost the data
 }
+
+namespace {
+    struct MyTestStruct {
+        int i;
+        float f;
+        std::string name;
+    };
+}
+
+TEST(GOpaque_OpaqueRef, Kind)
+{
+    cv::detail::OpaqueRef v1(cv::Rect{});
+    EXPECT_EQ(cv::detail::OpaqueKind::CV_RECT, v1.getKind());
+
+    cv::detail::OpaqueRef v3(int{});
+    EXPECT_EQ(cv::detail::OpaqueKind::CV_INT, v3.getKind());
+
+    cv::detail::OpaqueRef v4(double{});
+    EXPECT_EQ(cv::detail::OpaqueKind::CV_DOUBLE, v4.getKind());
+
+    cv::detail::OpaqueRef v6(cv::Point{});
+    EXPECT_EQ(cv::detail::OpaqueKind::CV_POINT, v6.getKind());
+
+    cv::detail::OpaqueRef v7(cv::Size{});
+    EXPECT_EQ(cv::detail::OpaqueKind::CV_SIZE, v7.getKind());
+
+    cv::detail::OpaqueRef v8(std::string{});
+    EXPECT_EQ(cv::detail::OpaqueKind::CV_STRING, v8.getKind());
+
+    cv::detail::OpaqueRef v9(MyTestStruct{});
+    EXPECT_EQ(cv::detail::OpaqueKind::CV_UNKNOWN, v9.getKind());
+}
+
+TEST(GOpaque_OpaqueRef, TestReset)
+{
+    // Warning: this test is testing some not-very-public APIs
+    cv::detail::OpaqueRef opref(int{42});
+    EXPECT_EQ(cv::detail::OpaqueKind::CV_INT, opref.getKind());
+    opref.reset<int>();
+    EXPECT_EQ(cv::detail::OpaqueKind::CV_INT, opref.getKind());
+}
 } // namespace opencv_test

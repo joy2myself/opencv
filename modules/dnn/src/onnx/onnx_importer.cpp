@@ -335,6 +335,10 @@ void ONNXImporter::populateNet(Net dstNet)
         {
             inpShape[j] = tensorShape.dim(j).dim_value();
         }
+        if (!inpShape.empty())
+        {
+            inpShape[0] = std::max(inpShape[0], 1); // It's OK to have undetermined batch size
+        }
         outShapes[valueInfoProto.name()] = inpShape;
     }
 
@@ -387,26 +391,39 @@ void ONNXImporter::populateNet(Net dstNet)
             layerParams.set("ceil_mode", layerParams.has("pad_mode"));
             layerParams.set("ave_pool_padded_area", framework_name == "pytorch");
         }
-        else if (layer_type == "GlobalAveragePool" || layer_type == "GlobalMaxPool" || layer_type == "ReduceMean")
+        else if (layer_type == "GlobalAveragePool" || layer_type == "GlobalMaxPool" ||
+                layer_type == "ReduceMean" || layer_type == "ReduceSum" || layer_type == "ReduceMax")
         {
             CV_Assert(node_proto.input_size() == 1);
             layerParams.type = "Pooling";
-            layerParams.set("pool", layer_type == "GlobalMaxPool"? "MAX" : "AVE");
-            layerParams.set("global_pooling", layer_type == "GlobalAveragePool" || layer_type == "GlobalMaxPool");
-
-            if (layer_type == "ReduceMean")
+            String pool;
+            if (layer_type == "GlobalMaxPool" || layer_type == "ReduceMax")
+                pool = "MAX";
+            else if (layer_type == "ReduceSum")
+                pool = "SUM";
+            else
+                pool = "AVE";
+            layerParams.set("pool", pool);
+            layerParams.set("global_pooling", !layerParams.has("axes"));
+            if (layerParams.has("axes") && (layer_type == "ReduceMean" || layer_type == "ReduceSum" || layer_type == "ReduceMax"))
             {
-                if (layerParams.get<int>("keepdims") == 0 || !layerParams.has("axes"))
-                    CV_Error(Error::StsNotImplemented, "Unsupported mode of ReduceMean operation.");
-
                 MatShape inpShape = outShapes[node_proto.input(0)];
                 DictValue axes = layerParams.get("axes");
+                bool keepdims = layerParams.get<int>("keepdims");
+                MatShape targetShape = inpShape;
+                for (int i = 0; i < axes.size(); i++) {
+                    int axis = clamp(axes.get<int>(i), inpShape.size());
+                    if (keepdims) {
+                        targetShape[axis] = 1;
+                    } else {
+                        targetShape.erase(targetShape.begin() + axis);
+                    }
+                }
+
                 if (inpShape.size() == 3 && axes.size() <= 2)
                 {
-                    int axis = axes.get<int>(0);
+                    int axis = clamp(axes.get<int>(0), inpShape.size());
                     CV_CheckNE(axis, 0, "");
-                    outShapes[layerParams.name] = inpShape;
-                    outShapes[layerParams.name][axis] = 1;
 
                     LayerParams reshapeLp;
                     reshapeLp.name = layerParams.name + "/reshape";
@@ -426,13 +443,12 @@ void ONNXImporter::populateNet(Net dstNet)
                     avgLp.name = layerParams.name + "/avg";
                     avgLp.type = "Pooling";
                     CV_Assert(layer_id.find(avgLp.name) == layer_id.end());
-                    avgLp.set("pool", "ave");
+                    avgLp.set("pool", pool);
                     if (axes.size() == 2)
                     {
-                        CV_CheckEQ(axes.get<int>(0), 1, "Unsupported ReduceMean mode");
-                        CV_CheckEQ(axes.get<int>(1), 2, "Unsupported ReduceMean mode");
+                        CV_CheckEQ(clamp(axes.get<int>(0), inpShape.size()), 1, "Unsupported mode");
+                        CV_CheckEQ(clamp(axes.get<int>(1), inpShape.size()), 2, "Unsupported mode");
                         avgLp.set("global_pooling", true);
-                        outShapes[layerParams.name][axes.get<int>(1)] = 1;
                     }
                     else
                     {
@@ -443,28 +459,63 @@ void ONNXImporter::populateNet(Net dstNet)
                     node_proto.set_input(0, reshapeLp.name);
                     node_proto.set_output(0, avgLp.name);
                     addLayer(dstNet, avgLp, node_proto, layer_id, outShapes);
-
-                    layerParams.type = "Flatten";
-                    layerParams.set("axis", 0);
-                    layerParams.set("end_axis", 1);
-
-                    node_proto.set_input(0, avgLp.name);
-                    node_proto.set_output(0, layerParams.name);
                 }
                 else
                 {
                     if (inpShape.size() != 4 && inpShape.size() != 5)
-                    CV_Error(Error::StsNotImplemented, "Unsupported input shape of reduce_mean operation.");
+                        CV_Error(Error::StsNotImplemented, "Unsupported input shape of " + layer_type + " operation.");
 
                     CV_Assert(axes.size() <= inpShape.size() - 2);
                     std::vector<int> kernel_size(inpShape.size() - 2, 1);
                     for (int i = 0; i < axes.size(); i++) {
-                        int axis = axes.get<int>(i);
+                        int axis = clamp(axes.get<int>(i), inpShape.size());
                         CV_Assert_N(axis >= 2 + i, axis < inpShape.size());
                         kernel_size[axis - 2] = inpShape[axis];
                     }
-                    layerParams.set("kernel_size", DictValue::arrayInt(&kernel_size[0], kernel_size.size()));
+                    LayerParams poolLp = layerParams;
+                    poolLp.name = layerParams.name + "/avg";
+                    CV_Assert(layer_id.find(poolLp.name) == layer_id.end());
+                    poolLp.set("kernel_size", DictValue::arrayInt(&kernel_size[0], kernel_size.size()));
+
+                    node_proto.set_output(0, poolLp.name);
+                    addLayer(dstNet, poolLp, node_proto, layer_id, outShapes);
                 }
+
+                layerParams.type = "Reshape";
+                layerParams.set("dim", DictValue::arrayInt(&targetShape[0], targetShape.size()));
+
+                node_proto.set_input(0, node_proto.output(0));
+                node_proto.set_output(0, layerParams.name);
+            }
+            else if (!layerParams.has("axes") && (layer_type == "ReduceMean" || layer_type == "ReduceSum" || layer_type == "ReduceMax"))
+            {
+                CV_CheckEQ(layerParams.get<int>("keepdims"), 0, "layer only supports keepdims = false");
+                LayerParams reshapeLp;
+                reshapeLp.name = layerParams.name + "/reshape";
+                reshapeLp.type = "Reshape";
+                CV_Assert(layer_id.find(reshapeLp.name) == layer_id.end());
+                int newShape[] = {1, 1, 1, -1};
+                reshapeLp.set("dim", DictValue::arrayInt(&newShape[0], 4));
+
+                opencv_onnx::NodeProto proto;
+                proto.add_input(node_proto.input(0));
+                proto.add_output(reshapeLp.name);
+                addLayer(dstNet, reshapeLp, proto, layer_id, outShapes);
+
+                LayerParams poolLp = layerParams;
+                poolLp.name = layerParams.name + "/pool";
+                CV_Assert(layer_id.find(poolLp.name) == layer_id.end());
+
+                node_proto.set_input(0, reshapeLp.name);
+                node_proto.set_output(0, poolLp.name);
+                addLayer(dstNet, poolLp, node_proto, layer_id, outShapes);
+
+                layerParams.type = "Reshape";
+                int targetShape[] = {1};
+                layerParams.set("dim", DictValue::arrayInt(&targetShape[0], 1));
+
+                node_proto.set_input(0, node_proto.output(0));
+                node_proto.set_output(0, layerParams.name);
             }
         }
         else if (layer_type == "Slice")
@@ -629,7 +680,7 @@ void ONNXImporter::populateNet(Net dstNet)
                         LayerParams constParams;
                         constParams.name = layerParams.name + "/const";
                         constParams.type = "Const";
-                        constParams.blobs.push_back(blob);
+                        constParams.blobs.push_back((isSub ? -1 : 1) * blob);
                         int id = dstNet.addLayer(constParams.name, constParams.type, constParams);
                         layer_id.insert(std::make_pair(constParams.name, LayerInfo(id, 0)));
                         outShapes[constParams.name] = shape(blob);
@@ -641,6 +692,17 @@ void ONNXImporter::populateNet(Net dstNet)
                     {
                         layerParams.type = "Scale";
                         layerParams.set("bias_term", true);
+                        int axis = 1;
+                        for (int i = 0; i < graph_proto.initializer_size(); i++)
+                        {
+                            opencv_onnx::TensorProto tensor_proto = graph_proto.initializer(i);
+                            if (tensor_proto.name() == node_proto.input(const_blob_id))
+                            {
+                                axis = inpShape.size() - tensor_proto.dims_size();
+                                break;
+                            }
+                        }
+                        layerParams.set("axis", axis);
                         blob = blob.reshape(1, 1);
                         layerParams.blobs.push_back((isSub ? -1 : 1) * blob);
                     }
@@ -680,6 +742,19 @@ void ONNXImporter::populateNet(Net dstNet)
                 layerParams.type = "Scale";
                 layerParams.set("bias_term", true);
             }
+        }
+        else if (layer_type == "Pow")
+        {
+            if (layer_id.find(node_proto.input(1)) != layer_id.end())
+                CV_Error(Error::StsNotImplemented, "Unsupported Pow op with variable power");
+
+            Mat blob = getBlob(node_proto, constBlobs, 1);
+            if (blob.total() != 1)
+                CV_Error(Error::StsNotImplemented, "Pow op supports only scalar power");
+
+            blob.convertTo(blob, CV_32F);
+            layerParams.type = "Power";
+            layerParams.set("power", blob.at<float>(0));
         }
         else if (layer_type == "Max")
         {
@@ -902,6 +977,19 @@ void ONNXImporter::populateNet(Net dstNet)
                 Mat bias = getBlob(node_proto, constBlobs, 2);
                 layerParams.blobs.push_back(bias);
             }
+            if (constBlobs.find(node_proto.input(0)) != constBlobs.end())
+            {
+                Mat inputBuf = getBlob(node_proto, constBlobs, 0);
+
+                LayerParams constParams;
+                constParams.name = node_proto.input(0);
+                constParams.type = "Const";
+                constParams.blobs.push_back(inputBuf);
+
+                opencv_onnx::NodeProto proto;
+                proto.add_output(constParams.name);
+                addLayer(dstNet, constParams, proto, layer_id, outShapes);
+            }
 
             layerParams.set("num_output", layerParams.blobs[0].size[ind_num_out]);
             layerParams.set("bias_term", node_proto.input_size() == 3);
@@ -911,13 +999,20 @@ void ONNXImporter::populateNet(Net dstNet)
             CV_Assert(node_proto.input_size() == 2);
             layerParams.type = "InnerProduct";
             layerParams.set("bias_term", false);
+            CV_Assert(constBlobs.find(node_proto.input(0)) == constBlobs.end());
+            int firstInpDims = outShapes[node_proto.input(0)].size();
+            int secondInpDims;
 
             if (constBlobs.find(node_proto.input(1)) != constBlobs.end())
             {
                 Mat blob = getBlob(node_proto, constBlobs, 1);
+                secondInpDims = blob.dims;
                 layerParams.blobs.push_back(blob.t());
                 layerParams.set("num_output", layerParams.blobs[0].size[0]);
+            } else {
+                secondInpDims = outShapes[node_proto.input(1)].size();
             }
+            layerParams.set("axis", firstInpDims - secondInpDims + 1);
         }
         else if (layer_type == "Mul" || layer_type == "Div")
         {
@@ -956,6 +1051,16 @@ void ONNXImporter::populateNet(Net dstNet)
             }
             else
             {
+                // Scale layer allocate output with the first input shape
+                if (total(outShapes[node_proto.input(0)]) < total(outShapes[node_proto.input(1)]))
+                {
+                    opencv_onnx::NodeProto proto;
+                    proto.add_input(node_proto.input(1));
+                    proto.add_input(node_proto.input(0));
+                    proto.add_output(layerParams.name);
+                    node_proto = proto;
+                }
+
                 if (isDiv)
                 {
                     LayerParams powerParams;
@@ -983,15 +1088,10 @@ void ONNXImporter::populateNet(Net dstNet)
             {
                 Mat inp0 = getBlob(node_proto, constBlobs, 0);
                 Mat inp1 = getBlob(node_proto, constBlobs, 1);
-                if (inp0.size != inp1.size)
+                if (inp0.size != inp1.size && inp1.total() != 1)
                     CV_Error(Error::StsNotImplemented, "Constant multiply with different shapes");
 
-                Mat out;
-                if (isDiv)
-                    divide(inp0, inp1, out);
-                else
-                    multiply(inp0, inp1, out);
-
+                Mat out = isDiv ? inp0 / inp1 : inp0.mul(inp1);
                 out = out.reshape(1, inp0.dims, inp0.size);
                 out.dims = inp0.dims;  // to workaround dims == 1
                 addConstant(layerParams.name, out, constBlobs, outShapes);
@@ -1162,9 +1262,45 @@ void ONNXImporter::populateNet(Net dstNet)
             Mat newShapeMat = getBlob(node_proto, constBlobs, 1);
             MatShape targetShape(newShapeMat.ptr<int>(), newShapeMat.ptr<int>() + newShapeMat.total());
 
-            shapeIt = outShapes.find(node_proto.input(0));
-            CV_Assert(shapeIt != outShapes.end());
-            MatShape inpShape = shapeIt->second;
+            MatShape inpShape;
+            bool haveVariables = constBlobs.find(node_proto.input(0)) == constBlobs.end();
+            if (haveVariables)
+            {
+                shapeIt = outShapes.find(node_proto.input(0));
+                CV_Assert(shapeIt != outShapes.end());
+                inpShape = shapeIt->second;
+            }
+            else
+            {
+                inpShape = shape(getBlob(node_proto, constBlobs, 0));
+            }
+
+            String srcName = node_proto.input(0);
+            // Unsqueeze and repeat along new axis
+            if (targetShape.size() == inpShape.size() + 1)
+            {
+                for (int i = 0; i < targetShape.size(); i++)
+                {
+                    if (targetShape[i] == -1 && i < inpShape.size())
+                        targetShape[i] = inpShape[i];
+                    else if (i < inpShape.size() && targetShape[i] != inpShape[i])
+                        inpShape.insert(inpShape.begin() + i, 1);
+                }
+                if (haveVariables)
+                {
+                    LayerParams reshapeLp;
+                    reshapeLp.name = layerParams.name + "/reshape";
+                    reshapeLp.type = "Reshape";
+                    CV_Assert(layer_id.find(reshapeLp.name) == layer_id.end());
+                    reshapeLp.set("dim", DictValue::arrayInt(&inpShape[0], inpShape.size()));
+
+                    opencv_onnx::NodeProto proto;
+                    proto.add_input(node_proto.input(0));
+                    proto.add_output(reshapeLp.name);
+                    addLayer(dstNet, reshapeLp, proto, layer_id, outShapes);
+                    srcName = reshapeLp.name;
+                }
+            }
             CV_CheckEQ(inpShape.size(), targetShape.size(), "Unsupported Expand op with different dims");
 
             std::vector<int> broadcast_axes;
@@ -1177,6 +1313,19 @@ void ONNXImporter::populateNet(Net dstNet)
                     else
                         CV_Error(Error::StsError, format("Could not be broadcast by axis: %d", i));
                 }
+            }
+
+            if (!haveVariables)
+            {
+                if (broadcast_axes.size() != 1)
+                    CV_Error(Error::StsNotImplemented, "Expand op doesn't support multiple axes for constant input");
+
+                Mat input = getBlob(node_proto, constBlobs, 0);
+                input = input.reshape(0, total(inpShape, 0, broadcast_axes[0]));
+                Mat output = cv::repeat(input, 1, targetShape[broadcast_axes[0]]);
+                output = output.reshape(0, targetShape);
+                addConstant(layerParams.name, output, constBlobs, outShapes);
+                continue;
             }
 
             if (broadcast_axes.size() == 2 &&
@@ -1213,6 +1362,7 @@ void ONNXImporter::populateNet(Net dstNet)
                     CV_Assert(layer_id.find(copyLP.name) == layer_id.end());
                     input_names.push_back(copyLP.name);
 
+                    node_proto.set_input(0, srcName);
                     node_proto.set_output(0, copyLP.name);
                     addLayer(dstNet, copyLP, node_proto, layer_id, outShapes);
                 }
@@ -1223,6 +1373,7 @@ void ONNXImporter::populateNet(Net dstNet)
                 }
                 layerParams.set("axis", broadcast_axes[0]);
                 layerParams.type = "Concat";
+                node_proto.set_output(0, layerParams.name);
             }
             else
                 CV_Error(Error::StsNotImplemented, "Unsupported Expand op");
@@ -1313,8 +1464,10 @@ void ONNXImporter::populateNet(Net dstNet)
                     case opencv_onnx::TensorProto_DataType_INT64:   type = CV_32S; break;
                     default: type = blob.type();
                 }
-                blob.convertTo(blob, type);
-                addConstant(layerParams.name, blob, constBlobs, outShapes);
+                Mat dst;
+                blob.convertTo(dst, type);
+                dst.dims = blob.dims;
+                addConstant(layerParams.name, dst, constBlobs, outShapes);
                 continue;
             }
             else
@@ -1363,6 +1516,8 @@ void ONNXImporter::populateNet(Net dstNet)
                 {
                     outShape.erase(outShape.begin() + axis);
                     out.reshape(0, outShape);
+                } else {
+                    out.dims = 1;
                 }
                 addConstant(layerParams.name, out, constBlobs, outShapes);
                 continue;
@@ -1395,6 +1550,7 @@ void ONNXImporter::populateNet(Net dstNet)
 
                     inpShape.erase(inpShape.begin() + axis);
                     layerParams.type = "Reshape";
+                    layerParams.set("axis", 0);
                     layerParams.set("dim", DictValue::arrayInt(&inpShape[0], inpShape.size()));
                     node_proto.set_input(0, sliceLp.name);
                 }
@@ -1442,7 +1598,9 @@ void ONNXImporter::populateNet(Net dstNet)
             Mat shapes = getBlob(node_proto, constBlobs, node_proto.input_size() - 1);
             CV_CheckEQ(shapes.size[0], 4, "");
             CV_CheckEQ(shapes.size[1], 1, "");
-            CV_CheckTypeEQ(shapes.depth(), CV_32S, "");
+            CV_CheckDepth(shapes.depth(), shapes.depth() == CV_32S || shapes.depth() == CV_32F, "");
+            if (shapes.depth() == CV_32F)
+                shapes.convertTo(shapes, CV_32S);
             int height = shapes.at<int>(2);
             int width  = shapes.at<int>(3);
             if (node_proto.input_size() == 3)

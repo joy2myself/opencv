@@ -18,8 +18,11 @@
 #include <opencv2/gapi/util/optional.hpp>
 #include <opencv2/gapi/own/exports.hpp>
 #include <opencv2/gapi/own/assert.hpp>
+#include <opencv2/gapi/render/render_types.hpp>
 
 namespace cv {
+
+class GMat; // FIXME: forward declaration for GOpaqueTraits
 
 namespace detail
 {
@@ -32,6 +35,48 @@ namespace detail
     {};
     struct TransformTag
     {};
+
+    // This enum is utilized mostly by GArray and GOpaque to store and recognize their internal data
+    // types (aka Host type). Also it is widely used during serialization routine.
+    enum class OpaqueKind: int
+    {
+        CV_UNKNOWN,    // Unknown, generic, opaque-to-GAPI data type unsupported in graph seriallization
+        CV_BOOL,       // bool user G-API data
+        CV_INT,        // int user G-API data
+        CV_DOUBLE,     // double user G-API data
+        CV_FLOAT,      // float user G-API data
+        CV_UINT64,     // uint64_t user G-API data
+        CV_STRING,     // std::string user G-API data
+        CV_POINT,      // cv::Point user G-API data
+        CV_SIZE,       // cv::Size user G-API data
+        CV_RECT,       // cv::Rect user G-API data
+        CV_SCALAR,     // cv::Scalar user G-API data
+        CV_MAT,        // cv::Mat user G-API data
+        CV_DRAW_PRIM,  // cv::gapi::wip::draw::Prim user G-API data
+    };
+
+    // Type traits helper which simplifies the extraction of kind from type
+    template<typename T> struct GOpaqueTraits;
+    template<typename T> struct GOpaqueTraits    { static constexpr const OpaqueKind kind = OpaqueKind::CV_UNKNOWN; };
+    template<> struct GOpaqueTraits<int>         { static constexpr const OpaqueKind kind = OpaqueKind::CV_INT; };
+    template<> struct GOpaqueTraits<double>      { static constexpr const OpaqueKind kind = OpaqueKind::CV_DOUBLE; };
+    template<> struct GOpaqueTraits<float>       { static constexpr const OpaqueKind kind = OpaqueKind::CV_FLOAT; };
+    template<> struct GOpaqueTraits<uint64_t>    { static constexpr const OpaqueKind kind = OpaqueKind::CV_UINT64; };
+    template<> struct GOpaqueTraits<bool>        { static constexpr const OpaqueKind kind = OpaqueKind::CV_BOOL; };
+    template<> struct GOpaqueTraits<std::string> { static constexpr const OpaqueKind kind = OpaqueKind::CV_STRING; };
+    template<> struct GOpaqueTraits<cv::Size>    { static constexpr const OpaqueKind kind = OpaqueKind::CV_SIZE; };
+    template<> struct GOpaqueTraits<cv::Scalar>  { static constexpr const OpaqueKind kind = OpaqueKind::CV_SCALAR; };
+    template<> struct GOpaqueTraits<cv::Point>   { static constexpr const OpaqueKind kind = OpaqueKind::CV_POINT; };
+    template<> struct GOpaqueTraits<cv::Mat>     { static constexpr const OpaqueKind kind = OpaqueKind::CV_MAT; };
+    template<> struct GOpaqueTraits<cv::Rect>    { static constexpr const OpaqueKind kind = OpaqueKind::CV_RECT; };
+    template<> struct GOpaqueTraits<cv::GMat>    { static constexpr const OpaqueKind kind = OpaqueKind::CV_MAT; };
+    template<> struct GOpaqueTraits<cv::gapi::wip::draw::Prim>
+                                                 { static constexpr const OpaqueKind kind = OpaqueKind::CV_DRAW_PRIM; };
+    using GOpaqueTraitsArrayTypes = std::tuple<int, double, float, uint64_t, bool, std::string, cv::Size, cv::Scalar, cv::Point,
+                                               cv::Mat, cv::Rect, cv::gapi::wip::draw::Prim>;
+    // GOpaque is not supporting cv::Mat and cv::Scalar since there are GScalar and GMat types
+    using GOpaqueTraitsOpaqueTypes = std::tuple<int, double, float, uint64_t, bool, std::string, cv::Size, cv::Point, cv::Rect,
+                                                cv::gapi::wip::draw::Prim>;
 } // namespace detail
 
 // This definition is here because it is reused by both public(?) and internal
@@ -46,6 +91,7 @@ enum class GShape: int
     GSCALAR,
     GARRAY,
     GOPAQUE,
+    GFRAME,
 };
 
 struct GCompileArg;
