@@ -1231,7 +1231,7 @@ inline v_float32x4& operator bin_op##= (v_float32x4& a, const v_float32x4& b) \
     return a; \
 }
 
-OPENCV_HAL_IMPL_RVV_FLT_BIT_OP(&, vadd_vv_i32m1)
+OPENCV_HAL_IMPL_RVV_FLT_BIT_OP(&, vand_vv_i32m1)
 OPENCV_HAL_IMPL_RVV_FLT_BIT_OP(|, vor_vv_i32m1)
 OPENCV_HAL_IMPL_RVV_FLT_BIT_OP(^, vxor_vv_i32m1)
 
@@ -1252,7 +1252,7 @@ inline v_float64x2& operator bin_op##= (v_float64x2& a, const v_float64x2& b) \
     return a; \
 }
 
-OPENCV_HAL_IMPL_RVV_FLT64_BIT_OP(&, vadd_vv_i64m1)
+OPENCV_HAL_IMPL_RVV_FLT64_BIT_OP(&, vand_vv_i64m1)
 OPENCV_HAL_IMPL_RVV_FLT64_BIT_OP(|, vor_vv_i64m1)
 OPENCV_HAL_IMPL_RVV_FLT64_BIT_OP(^, vxor_vv_i64m1)
 
