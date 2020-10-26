@@ -635,13 +635,20 @@ OPENCV_HAL_IMPL_RVV_EXTRACT(v_float64x2, double, f64, vfmv_f_s_f64m1_f64)
 
 ////////////// Load/Store //////////////
 
-#define OPENCV_HAL_IMPL_RVV_LOADSTORE_OP(_Tpvec, _Tp, width, suffix) \
+#define OPENCV_HAL_IMPL_RVV_LOADSTORE_OP(_Tpvec, _nTpvec, _Tp, hvl, width, suffix) \
 inline _Tpvec v_load(const _Tp* ptr) \
-{ return _Tpvec(vle##width##_v_##suffix##m1(ptr)); } \
+{ return _Tpvec((_nTpvec)vle8_v_u8m1((uchar*)ptr)); } \
 inline _Tpvec v_load_aligned(const _Tp* ptr) \
 { return _Tpvec(vle##width##_v_##suffix##m1(ptr)); } \
+inline _Tpvec v_load_low(const _Tp* ptr) \
+{ \
+    vsetvl_e##width##m1(hvl); \
+    _Tpvec res = _Tpvec(vle##width##_v_##suffix##m1(ptr)); \
+    vsetvlmax_e##width##m1(); \
+    return res; \
+} \
 inline void v_store(_Tp* ptr, const _Tpvec& a) \
-{ vse##width##_v_##suffix##m1(ptr, a); } \
+{ vse8_v_u8m1((uchar*)ptr, vle8_v_u8m1((uchar*)a.val)); } \
 inline void v_store_aligned(_Tp* ptr, const _Tpvec& a) \
 { vse##width##_v_##suffix##m1(ptr, a); } \
 inline void v_store_aligned_nocache(_Tp* ptr, const _Tpvec& a) \
@@ -667,28 +674,19 @@ inline void v_store_high(_Tp* ptr, const _Tpvec& a) \
     } \
 }
 
-OPENCV_HAL_IMPL_RVV_LOADSTORE_OP(v_uint8x16, uchar, 8, u8)
-OPENCV_HAL_IMPL_RVV_LOADSTORE_OP(v_int8x16, schar, 8, i8)
-OPENCV_HAL_IMPL_RVV_LOADSTORE_OP(v_uint16x8, ushort, 16, u16)
-OPENCV_HAL_IMPL_RVV_LOADSTORE_OP(v_int16x8, short, 16, i16)
-OPENCV_HAL_IMPL_RVV_LOADSTORE_OP(v_uint32x4, unsigned, 32, u32)
-OPENCV_HAL_IMPL_RVV_LOADSTORE_OP(v_int32x4, int, 32, i32)
-OPENCV_HAL_IMPL_RVV_LOADSTORE_OP(v_uint64x2, uint64, 64, u64)
-OPENCV_HAL_IMPL_RVV_LOADSTORE_OP(v_int64x2, int64, 64, i64)
-OPENCV_HAL_IMPL_RVV_LOADSTORE_OP(v_float32x4, float, 32, f32)
+OPENCV_HAL_IMPL_RVV_LOADSTORE_OP(v_uint8x16, vuint8m1_t, uchar, 8, 8, u8)
+OPENCV_HAL_IMPL_RVV_LOADSTORE_OP(v_int8x16, vint8m1_t, schar, 8, 8, i8)
+OPENCV_HAL_IMPL_RVV_LOADSTORE_OP(v_uint16x8, vuint16m1_t, ushort, 4, 16, u16)
+OPENCV_HAL_IMPL_RVV_LOADSTORE_OP(v_int16x8, vint16m1_t, short, 4, 16, i16)
+OPENCV_HAL_IMPL_RVV_LOADSTORE_OP(v_uint32x4, vuint32m1_t, unsigned, 2, 32, u32)
+OPENCV_HAL_IMPL_RVV_LOADSTORE_OP(v_int32x4, vint32m1_t, int, 2, 32, i32)
+OPENCV_HAL_IMPL_RVV_LOADSTORE_OP(v_uint64x2, vuint64m1_t, uint64, 1, 64, u64)
+OPENCV_HAL_IMPL_RVV_LOADSTORE_OP(v_int64x2, vint64m1_t, int64, 1, 64, i64)
+OPENCV_HAL_IMPL_RVV_LOADSTORE_OP(v_float32x4, vfloat32m1_t, float, 2, 32, f32)
 #if CV_SIMD128_64F
-OPENCV_HAL_IMPL_RVV_LOADSTORE_OP(v_float64x2, double, 64, f64)
+OPENCV_HAL_IMPL_RVV_LOADSTORE_OP(v_float64x2, vfloat64m1_t, double, 1, 64, f64)
 #endif
 
-inline v_int8x16 v_load_low(const schar* ptr)
-{
-    schar CV_DECL_ALIGNED(32) elems[16] =
-    {
-        ptr[0], ptr[1], ptr[2], ptr[3], ptr[4], ptr[5], ptr[6], ptr[7],
-        0, 0, 0, 0, 0, 0, 0, 0
-    };
-    return v_int8x16(vle8_v_i8m1(elems));
-}
 inline v_int8x16 v_load_halves(const schar* ptr0, const schar* ptr1)
 {
     schar CV_DECL_ALIGNED(32) elems[16] =
@@ -698,17 +696,8 @@ inline v_int8x16 v_load_halves(const schar* ptr0, const schar* ptr1)
     };
     return v_int8x16(vle8_v_i8m1(elems));
 }
-inline v_uint8x16 v_load_low(const uchar* ptr) { return v_reinterpret_as_u8(v_load_low((schar*)ptr)); }
 inline v_uint8x16 v_load_halves(const uchar* ptr0, const uchar* ptr1) { return v_reinterpret_as_u8(v_load_halves((schar*)ptr0, (schar*)ptr1)); }
 
-inline v_int16x8 v_load_low(const short* ptr)
-{
-    short CV_DECL_ALIGNED(32) elems[8] =
-    {
-        ptr[0], ptr[1], ptr[2], ptr[3], 0, 0, 0, 0
-    };
-    return v_int16x8(vle16_v_i16m1(elems));
-}
 inline v_int16x8 v_load_halves(const short* ptr0, const short* ptr1)
 {
     short CV_DECL_ALIGNED(32) elems[8] =
@@ -717,17 +706,8 @@ inline v_int16x8 v_load_halves(const short* ptr0, const short* ptr1)
     };
     return v_int16x8(vle16_v_i16m1(elems));
 }
-inline v_uint16x8 v_load_low(const ushort* ptr) { return v_reinterpret_as_u16(v_load_low((short*)ptr)); }
 inline v_uint16x8 v_load_halves(const ushort* ptr0, const ushort* ptr1) { return v_reinterpret_as_u16(v_load_halves((short*)ptr0, (short*)ptr1)); }
 
-inline v_int32x4 v_load_low(const int* ptr)
-{
-    int CV_DECL_ALIGNED(32) elems[4] =
-    {
-        ptr[0], ptr[1], 0, 0
-    };
-    return v_int32x4(vle32_v_i32m1(elems));
-}
 inline v_int32x4 v_load_halves(const int* ptr0, const int* ptr1)
 {
     int CV_DECL_ALIGNED(32) elems[4] =
@@ -735,14 +715,6 @@ inline v_int32x4 v_load_halves(const int* ptr0, const int* ptr1)
         ptr0[0], ptr0[1], ptr1[0], ptr1[1]
     };
     return v_int32x4(vle32_v_i32m1(elems));
-}
-inline v_float32x4 v_load_low(const float* ptr)
-{
-    float CV_DECL_ALIGNED(32) elems[4] =
-    {
-        ptr[0], ptr[1], 0, 0
-    };
-    return v_float32x4(vle32_v_f32m1(elems));
 }
 inline v_float32x4 v_load_halves(const float* ptr0, const float* ptr1)
 {
@@ -752,17 +724,8 @@ inline v_float32x4 v_load_halves(const float* ptr0, const float* ptr1)
     };
     return v_float32x4(vle32_v_f32m1(elems));
 }
-inline v_uint32x4 v_load_low(const unsigned* ptr) { return v_reinterpret_as_u32(v_load_low((int*)ptr)); }
 inline v_uint32x4 v_load_halves(const unsigned* ptr0, const unsigned* ptr1) { return v_reinterpret_as_u32(v_load_halves((int*)ptr0, (int*)ptr1)); }
 
-inline v_int64x2 v_load_low(const int64* ptr)
-{
-    int64 CV_DECL_ALIGNED(32) elems[2] =
-    {
-        ptr[0], 0
-    };
-    return v_int64x2(vle64_v_i64m1(elems));
-}
 inline v_int64x2 v_load_halves(const int64* ptr0, const int64* ptr1)
 {
     int64 CV_DECL_ALIGNED(32) elems[2] =
@@ -771,18 +734,9 @@ inline v_int64x2 v_load_halves(const int64* ptr0, const int64* ptr1)
     };
     return v_int64x2(vle64_v_i64m1(elems));
 }
-inline v_uint64x2 v_load_low(const uint64* ptr) { return v_reinterpret_as_u64(v_load_low((int64*)ptr)); }
 inline v_uint64x2 v_load_halves(const uint64* ptr0, const uint64* ptr1) { return v_reinterpret_as_u64(v_load_halves((int64*)ptr0, (int64*)ptr1)); }
 
 #if CV_SIMD128_64F
-inline v_float64x2 v_load_low(const double* ptr)
-{
-    double CV_DECL_ALIGNED(32) elems[2] =
-    {
-        ptr[0], 0
-    };
-    return v_float64x2(vle64_v_f64m1(elems));
-}
 inline v_float64x2 v_load_halves(const double* ptr0, const double* ptr1)
 {
     double CV_DECL_ALIGNED(32) elems[2] =
