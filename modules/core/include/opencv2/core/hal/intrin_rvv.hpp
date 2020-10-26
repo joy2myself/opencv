@@ -1269,59 +1269,56 @@ OPENCV_HAL_IMPL_RVV_SIGNED_SHIFT_OP(v_int64x2, i64)
 
 ////////////// Comparison //////////////
 
-#define OPENCV_HAL_IMPL_RVV_UNSIGNED_INT_CMP_OP(_Tpvec, suffix, width) \
-inline _Tpvec operator == (const _Tpvec& a, const _Tpvec& b) \
-{ return _Tpvec(vmerge_vxm_##suffix##m1(vmseq_vv_##suffix##m1_b##width(a, b), vzero_##suffix##m1(), 1)); } \
-inline _Tpvec operator != (const _Tpvec& a, const _Tpvec& b) \
-{ return _Tpvec(vmerge_vxm_##suffix##m1(vmsne_vv_##suffix##m1_b##width(a, b), vzero_##suffix##m1(), 1)); } \
-inline _Tpvec operator < (const _Tpvec& a, const _Tpvec& b) \
-{ return _Tpvec(vmerge_vxm_##suffix##m1(vmsltu_vv_##suffix##m1_b##width(a, b), vzero_##suffix##m1(), 1)); } \
-inline _Tpvec operator > (const _Tpvec& a, const _Tpvec& b) \
-{ return _Tpvec(vmerge_vxm_##suffix##m1(vmsgtu_vv_##suffix##m1_b##width(a, b), vzero_##suffix##m1(), 1)); } \
-inline _Tpvec operator <= (const _Tpvec& a, const _Tpvec& b) \
-{ return _Tpvec(vmerge_vxm_##suffix##m1(vmsleu_vv_##suffix##m1_b##width(a, b), vzero_##suffix##m1(), 1)); } \
-inline _Tpvec operator >= (const _Tpvec& a, const _Tpvec& b) \
-{ return _Tpvec(vmerge_vxm_##suffix##m1(vmsgeu_vv_##suffix##m1_b##width(a, b), vzero_##suffix##m1(), 1)); }
+#define OPENCV_HAL_IMPL_RVV_INT_CMP_OP(_Tpvec, op, intrin, suffix, width) \
+inline _Tpvec operator op (const _Tpvec& a, const _Tpvec& b) \
+{ \
+    vsetvlmax_e##width##m1(); \
+    return _Tpvec(vmerge_vxm_##suffix##m1(intrin(a, b), vzero_##suffix##m1(), 1)); \
+}
 
-#define OPENCV_HAL_IMPL_RVV_SIGNED_INT_CMP_OP(_Tpvec, suffix, width) \
-inline _Tpvec operator == (const _Tpvec& a, const _Tpvec& b) \
-{ return _Tpvec(vmerge_vxm_##suffix##m1(vmseq_vv_##suffix##m1_b##width(a, b), vzero_##suffix##m1(), 1)); } \
-inline _Tpvec operator != (const _Tpvec& a, const _Tpvec& b) \
-{ return _Tpvec(vmerge_vxm_##suffix##m1(vmsne_vv_##suffix##m1_b##width(a, b), vzero_##suffix##m1(), 1)); } \
-inline _Tpvec operator < (const _Tpvec& a, const _Tpvec& b) \
-{ return _Tpvec(vmerge_vxm_##suffix##m1(vmslt_vv_##suffix##m1_b##width(a, b), vzero_##suffix##m1(), 1)); } \
-inline _Tpvec operator > (const _Tpvec& a, const _Tpvec& b) \
-{ return _Tpvec(vmerge_vxm_##suffix##m1(vmsgt_vv_##suffix##m1_b##width(a, b), vzero_##suffix##m1(), 1)); } \
-inline _Tpvec operator <= (const _Tpvec& a, const _Tpvec& b) \
-{ return _Tpvec(vmerge_vxm_##suffix##m1(vmsle_vv_##suffix##m1_b##width(a, b), vzero_##suffix##m1(), 1)); } \
-inline _Tpvec operator >= (const _Tpvec& a, const _Tpvec& b) \
-{ return _Tpvec(vmerge_vxm_##suffix##m1(vmsge_vv_##suffix##m1_b##width(a, b), vzero_##suffix##m1(), 1)); }
+#define OPENCV_HAL_IMPL_RVV_FLOAT_CMP_OP(_Tpvec, op, intrin, suffix, width) \
+inline _Tpvec operator op (const _Tpvec& a, const _Tpvec& b) \
+{ \
+    vsetvlmax_e##width##m1(); \
+    return _Tpvec(vfmerge_vfm_##suffix##m1(intrin(a, b), vzero_##suffix##m1(), 1)); \
+}
 
-#define OPENCV_HAL_IMPL_RVV_FLOAT_CMP_OP(_Tpvec, suffix, width) \
-inline _Tpvec operator == (const _Tpvec& a, const _Tpvec& b) \
-{ return _Tpvec(vfmerge_vfm_##suffix##m1(vmfeq_vv_##suffix##m1_b##width(a, b), vzero_##suffix##m1(), 1)); } \
-inline _Tpvec operator != (const _Tpvec& a, const _Tpvec& b) \
-{ return _Tpvec(vfmerge_vfm_##suffix##m1(vmfne_vv_##suffix##m1_b##width(a, b), vzero_##suffix##m1(), 1)); } \
-inline _Tpvec operator < (const _Tpvec& a, const _Tpvec& b) \
-{ return _Tpvec(vfmerge_vfm_##suffix##m1(vmflt_vv_##suffix##m1_b##width(a, b), vzero_##suffix##m1(), 1)); } \
-inline _Tpvec operator > (const _Tpvec& a, const _Tpvec& b) \
-{ return _Tpvec(vfmerge_vfm_##suffix##m1(vmfgt_vv_##suffix##m1_b##width(a, b), vzero_##suffix##m1(), 1)); } \
-inline _Tpvec operator <= (const _Tpvec& a, const _Tpvec& b) \
-{ return _Tpvec(vfmerge_vfm_##suffix##m1(vmfle_vv_##suffix##m1_b##width(a, b), vzero_##suffix##m1(), 1)); } \
-inline _Tpvec operator >= (const _Tpvec& a, const _Tpvec& b) \
-{ return _Tpvec(vfmerge_vfm_##suffix##m1(vmfge_vv_##suffix##m1_b##width(a, b), vzero_##suffix##m1(), 1)); }
+#define OPENCV_HAL_IMPL_RVV_UNSIGNED_CMP(_Tpvec, suffix, width) \
+OPENCV_HAL_IMPL_RVV_INT_CMP_OP(_Tpvec, ==, vmseq_vv_##suffix##m1_b##width, suffix, width) \
+OPENCV_HAL_IMPL_RVV_INT_CMP_OP(_Tpvec, !=, vmsne_vv_##suffix##m1_b##width, suffix, width) \
+OPENCV_HAL_IMPL_RVV_INT_CMP_OP(_Tpvec, <, vmsltu_vv_##suffix##m1_b##width, suffix, width) \
+OPENCV_HAL_IMPL_RVV_INT_CMP_OP(_Tpvec, >, vmsgtu_vv_##suffix##m1_b##width, suffix, width) \
+OPENCV_HAL_IMPL_RVV_INT_CMP_OP(_Tpvec, <=, vmsleu_vv_##suffix##m1_b##width, suffix, width) \
+OPENCV_HAL_IMPL_RVV_INT_CMP_OP(_Tpvec, >=, vmsgeu_vv_##suffix##m1_b##width, suffix, width)
 
-OPENCV_HAL_IMPL_RVV_UNSIGNED_INT_CMP_OP(v_uint8x16, u8, 8)
-OPENCV_HAL_IMPL_RVV_UNSIGNED_INT_CMP_OP(v_uint16x8, u16, 16)
-OPENCV_HAL_IMPL_RVV_UNSIGNED_INT_CMP_OP(v_uint32x4, u32, 32)
-OPENCV_HAL_IMPL_RVV_UNSIGNED_INT_CMP_OP(v_uint64x2, u64, 64)
-OPENCV_HAL_IMPL_RVV_SIGNED_INT_CMP_OP(v_int8x16, i8, 8)
-OPENCV_HAL_IMPL_RVV_SIGNED_INT_CMP_OP(v_int16x8, i16, 16)
-OPENCV_HAL_IMPL_RVV_SIGNED_INT_CMP_OP(v_int32x4, i32, 32)
-OPENCV_HAL_IMPL_RVV_SIGNED_INT_CMP_OP(v_int64x2, i64, 64)
-OPENCV_HAL_IMPL_RVV_FLOAT_CMP_OP(v_float32x4, f32, 32)
+#define OPENCV_HAL_IMPL_RVV_SIGNED_CMP(_Tpvec, suffix, width) \
+OPENCV_HAL_IMPL_RVV_INT_CMP_OP(_Tpvec, ==, vmseq_vv_##suffix##m1_b##width, suffix, width) \
+OPENCV_HAL_IMPL_RVV_INT_CMP_OP(_Tpvec, !=, vmsne_vv_##suffix##m1_b##width, suffix, width) \
+OPENCV_HAL_IMPL_RVV_INT_CMP_OP(_Tpvec, <, vmslt_vv_##suffix##m1_b##width, suffix, width) \
+OPENCV_HAL_IMPL_RVV_INT_CMP_OP(_Tpvec, >, vmsgt_vv_##suffix##m1_b##width, suffix, width) \
+OPENCV_HAL_IMPL_RVV_INT_CMP_OP(_Tpvec, <=, vmsle_vv_##suffix##m1_b##width, suffix, width) \
+OPENCV_HAL_IMPL_RVV_INT_CMP_OP(_Tpvec, >=, vmsge_vv_##suffix##m1_b##width, suffix, width)
+
+#define OPENCV_HAL_IMPL_RVV_FLOAT_CMP(_Tpvec, suffix, width) \
+OPENCV_HAL_IMPL_RVV_FLOAT_CMP_OP(_Tpvec, ==, vmfeq_vv_##suffix##m1_b##width, suffix, width) \
+OPENCV_HAL_IMPL_RVV_FLOAT_CMP_OP(_Tpvec, !=, vmfne_vv_##suffix##m1_b##width, suffix, width) \
+OPENCV_HAL_IMPL_RVV_FLOAT_CMP_OP(_Tpvec, <, vmflt_vv_##suffix##m1_b##width, suffix, width) \
+OPENCV_HAL_IMPL_RVV_FLOAT_CMP_OP(_Tpvec, >, vmfgt_vv_##suffix##m1_b##width, suffix, width) \
+OPENCV_HAL_IMPL_RVV_FLOAT_CMP_OP(_Tpvec, <=, vmfle_vv_##suffix##m1_b##width, suffix, width) \
+OPENCV_HAL_IMPL_RVV_FLOAT_CMP_OP(_Tpvec, >=, vmfge_vv_##suffix##m1_b##width, suffix, width)
+
+
+OPENCV_HAL_IMPL_RVV_UNSIGNED_CMP(v_uint8x16, u8, 8)
+OPENCV_HAL_IMPL_RVV_UNSIGNED_CMP(v_uint16x8, u16, 16)
+OPENCV_HAL_IMPL_RVV_UNSIGNED_CMP(v_uint32x4, u32, 32)
+OPENCV_HAL_IMPL_RVV_UNSIGNED_CMP(v_uint64x2, u64, 64)
+OPENCV_HAL_IMPL_RVV_SIGNED_CMP(v_int8x16, i8, 8)
+OPENCV_HAL_IMPL_RVV_SIGNED_CMP(v_int16x8, i16, 16)
+OPENCV_HAL_IMPL_RVV_SIGNED_CMP(v_int32x4, i32, 32)
+OPENCV_HAL_IMPL_RVV_SIGNED_CMP(v_int64x2, i64, 64)
+OPENCV_HAL_IMPL_RVV_FLOAT_CMP(v_float32x4, f32, 32)
 #if CV_SIMD128_64F
-OPENCV_HAL_IMPL_RVV_FLOAT_CMP_OP(v_float64x2, f64, 64)
+OPENCV_HAL_IMPL_RVV_FLOAT_CMP(v_float64x2, f64, 64)
 #endif
 
 inline v_float32x4 v_not_nan(const v_float32x4& a)
