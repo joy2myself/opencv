@@ -499,26 +499,42 @@ struct v_float64x2
 
 //////////// Initial ////////////
 
-#define OPENCV_HAL_IMPL_RVV_INIT_INTEGER(_Tpvec, _Tp, suffix1, suffix2) \
-inline v_##_Tpvec v_setzero_##suffix1() { return v_##_Tpvec(vzero_##suffix2##m1()); } \
-inline v_##_Tpvec v_setall_##suffix1(_Tp v) { return v_##_Tpvec(vmv_v_x_##suffix2##m1(v)); }
+#define OPENCV_HAL_IMPL_RVV_INIT_INTEGER(_Tpvec, _Tp, width, suffix1, suffix2) \
+inline v_##_Tpvec v_setzero_##suffix1() \
+{ \
+    vsetvlmax_e##width##m1(); \
+    return v_##_Tpvec(vzero_##suffix2##m1()); \
+} \
+inline v_##_Tpvec v_setall_##suffix1(_Tp v) \
+{ \
+    vsetvlmax_e##width##m1(); \
+    return v_##_Tpvec(vmv_v_x_##suffix2##m1(v)); \
+}
 
-OPENCV_HAL_IMPL_RVV_INIT_INTEGER(uint8x16, uchar, u8, u8)
-OPENCV_HAL_IMPL_RVV_INIT_INTEGER(int8x16, schar, s8, i8)
-OPENCV_HAL_IMPL_RVV_INIT_INTEGER(uint16x8, ushort, u16, u16)
-OPENCV_HAL_IMPL_RVV_INIT_INTEGER(int16x8, short, s16, i16)
-OPENCV_HAL_IMPL_RVV_INIT_INTEGER(uint32x4, unsigned, u32, u32)
-OPENCV_HAL_IMPL_RVV_INIT_INTEGER(int32x4, int, s32, i32)
-OPENCV_HAL_IMPL_RVV_INIT_INTEGER(uint64x2, uint64, u64, u64)
-OPENCV_HAL_IMPL_RVV_INIT_INTEGER(int64x2, int64, s64, i64)
+OPENCV_HAL_IMPL_RVV_INIT_INTEGER(uint8x16, uchar, 8, u8, u8)
+OPENCV_HAL_IMPL_RVV_INIT_INTEGER(int8x16, schar, 8, s8, i8)
+OPENCV_HAL_IMPL_RVV_INIT_INTEGER(uint16x8, ushort, 16, u16, u16)
+OPENCV_HAL_IMPL_RVV_INIT_INTEGER(int16x8, short, 16, s16, i16)
+OPENCV_HAL_IMPL_RVV_INIT_INTEGER(uint32x4, unsigned, 32, u32, u32)
+OPENCV_HAL_IMPL_RVV_INIT_INTEGER(int32x4, int, 32, s32, i32)
+OPENCV_HAL_IMPL_RVV_INIT_INTEGER(uint64x2, uint64, 64, u64, u64)
+OPENCV_HAL_IMPL_RVV_INIT_INTEGER(int64x2, int64, 64, s64, i64)
 
-#define OPENCV_HAL_IMPL_RVV_INIT_FP(_Tpv, _Tp, suffix) \
-inline v_##_Tpv v_setzero_##suffix() { return v_##_Tpv(vzero_##suffix##m1()); } \
-inline v_##_Tpv v_setall_##suffix(_Tp v) { return v_##_Tpv(vfmv_v_f_##suffix##m1(v)); }
+#define OPENCV_HAL_IMPL_RVV_INIT_FP(_Tpv, _Tp, width, suffix) \
+inline v_##_Tpv v_setzero_##suffix() \
+{ \
+    vsetvlmax_e##width##m1(); \
+    return v_##_Tpv(vzero_##suffix##m1()); \
+} \
+inline v_##_Tpv v_setall_##suffix(_Tp v) \
+{ \
+    vsetvlmax_e##width##m1(); \
+    return v_##_Tpv(vfmv_v_f_##suffix##m1(v)); \
+}
 
-OPENCV_HAL_IMPL_RVV_INIT_FP(float32x4, float, f32)
+OPENCV_HAL_IMPL_RVV_INIT_FP(float32x4, float, 32, f32)
 #if CV_SIMD128_64F
-OPENCV_HAL_IMPL_RVV_INIT_FP(float64x2, double, f64)
+OPENCV_HAL_IMPL_RVV_INIT_FP(float64x2, double, 64, f64)
 #endif
 
 //////////// Reinterpret ////////////
