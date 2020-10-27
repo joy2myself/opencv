@@ -624,29 +624,31 @@ inline v_float64x2 v_reinterpret_as_f64(const v_float32x4& v)
 
 ////////////// Extract //////////////
 
-#define OPENCV_HAL_IMPL_RVV_EXTRACT(_Tpvec, _Tp, suffix, vmv) \
+#define OPENCV_HAL_IMPL_RVV_EXTRACT(_Tpvec, _Tp, suffix, width, vmv) \
 template <int s> \
 inline _Tpvec v_extract(const _Tpvec& a, const _Tpvec& b) \
 { \
-    return _Tpvec(vslidedown_vx_##suffix##m1(b, a, s)); \
+    vsetvlmax_e##width##m1(); \
+    return _Tpvec(vslideup_vx_##suffix##m1(vslidedown_vx_##suffix##m1(vzero_##suffix##m1(), a, s), b, _Tpvec::nlanes - s)); \
 } \
 template<int i> inline _Tp v_extract_n(_Tpvec v) \
 { \
+    vsetvlmax_e##width##m1(); \
     return _Tp(vmv(vslidedown_vx_##suffix##m1(vzero_##suffix##m1(), v, i))); \
 }
 
 
-OPENCV_HAL_IMPL_RVV_EXTRACT(v_uint8x16, uchar, u8, vmv_x_s_u8m1_u8)
-OPENCV_HAL_IMPL_RVV_EXTRACT(v_int8x16, schar, i8, vmv_x_s_i8m1_i8)
-OPENCV_HAL_IMPL_RVV_EXTRACT(v_uint16x8, ushort, u16, vmv_x_s_u16m1_u16)
-OPENCV_HAL_IMPL_RVV_EXTRACT(v_int16x8, short, i16, vmv_x_s_i16m1_i16)
-OPENCV_HAL_IMPL_RVV_EXTRACT(v_uint32x4, uint, u32, vmv_x_s_u32m1_u32)
-OPENCV_HAL_IMPL_RVV_EXTRACT(v_int32x4, int, i32, vmv_x_s_i32m1_i32)
-OPENCV_HAL_IMPL_RVV_EXTRACT(v_uint64x2, uint64, u64, vmv_x_s_u64m1_u64)
-OPENCV_HAL_IMPL_RVV_EXTRACT(v_int64x2, int64, i64, vmv_x_s_i64m1_i64)
-OPENCV_HAL_IMPL_RVV_EXTRACT(v_float32x4, float, f32, vfmv_f_s_f32m1_f32)
+OPENCV_HAL_IMPL_RVV_EXTRACT(v_uint8x16, uchar, u8, 8, vmv_x_s_u8m1_u8)
+OPENCV_HAL_IMPL_RVV_EXTRACT(v_int8x16, schar, i8, 8, vmv_x_s_i8m1_i8)
+OPENCV_HAL_IMPL_RVV_EXTRACT(v_uint16x8, ushort, u16, 16, vmv_x_s_u16m1_u16)
+OPENCV_HAL_IMPL_RVV_EXTRACT(v_int16x8, short, i16, 16, vmv_x_s_i16m1_i16)
+OPENCV_HAL_IMPL_RVV_EXTRACT(v_uint32x4, uint, u32, 32, vmv_x_s_u32m1_u32)
+OPENCV_HAL_IMPL_RVV_EXTRACT(v_int32x4, int, i32, 32, vmv_x_s_i32m1_i32)
+OPENCV_HAL_IMPL_RVV_EXTRACT(v_uint64x2, uint64, u64, 64, vmv_x_s_u64m1_u64)
+OPENCV_HAL_IMPL_RVV_EXTRACT(v_int64x2, int64, i64, 64, vmv_x_s_i64m1_i64)
+OPENCV_HAL_IMPL_RVV_EXTRACT(v_float32x4, float, f32, 32, vfmv_f_s_f32m1_f32)
 #if CV_SIMD128_64F
-OPENCV_HAL_IMPL_RVV_EXTRACT(v_float64x2, double, f64, vfmv_f_s_f64m1_f64)
+OPENCV_HAL_IMPL_RVV_EXTRACT(v_float64x2, double, f64, 64, vfmv_f_s_f64m1_f64)
 #endif
 
 ////////////// Load/Store //////////////
