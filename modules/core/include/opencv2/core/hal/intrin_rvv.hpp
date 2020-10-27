@@ -1832,6 +1832,7 @@ inline _Tpvec v_reverse(const _Tpvec& a)  \
 { \
     _Tp CV_DECL_ALIGNED(32) ptr[_Tpvec::nlanes] = {0}; \
     _Tp CV_DECL_ALIGNED(32) ptra[_Tpvec::nlanes] = {0}; \
+    vsetvlmax_e##width##m1(); \
     v_store(ptra, a); \
     for (int i = 0; i < _Tpvec::nlanes; i++) \
     { \
