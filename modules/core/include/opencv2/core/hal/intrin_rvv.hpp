@@ -1378,40 +1378,51 @@ OPENCV_HAL_IMPL_RVV_BIN_FUNC(v_int16x8, v_mul_wrap, vmul_vv_i16m1, 16)
 
 ////////////// Reduce //////////////
 
-#define OPENCV_HAL_IMPL_RVV_REDUCE(_Tpvec, func, scalartype, suffix, red) \
-inline scalartype v_reduce_##func(const _Tpvec& a)  \
+#define OPENCV_HAL_IMPL_RVV_REDUCE_SUM(_Tpvec, scalartype, suffix, width, red) \
+inline scalartype v_reduce_sum(const _Tpvec& a)  \
 { \
-    _Tpvec dst = _Tpvec(vzero_##suffix##m1()); \
-    v##red##_vs_##suffix##m1_##suffix##m1(dst, a, vzero_##suffix##m1()); \
-    return scalartype(dst.get0()); \
+    vsetvlmax_e##width##m1(); \
+    _Tpvec res = _Tpvec(v##red##_vs_##suffix##m1_##suffix##m1(a, a, vzero_##suffix##m1())); \
+    return scalartype(res.get0()); \
 }
 
-OPENCV_HAL_IMPL_RVV_REDUCE(v_uint8x16, sum, unsigned, u8, redsum)
-OPENCV_HAL_IMPL_RVV_REDUCE(v_int8x16, sum, int, i8, redsum)
-OPENCV_HAL_IMPL_RVV_REDUCE(v_uint16x8, sum, unsigned, u16, redsum)
-OPENCV_HAL_IMPL_RVV_REDUCE(v_int16x8, sum, int, i16, redsum)
-OPENCV_HAL_IMPL_RVV_REDUCE(v_uint32x4, sum, unsigned, u32, redsum)
-OPENCV_HAL_IMPL_RVV_REDUCE(v_int32x4, sum, int, i32, redsum)
-OPENCV_HAL_IMPL_RVV_REDUCE(v_float32x4, sum, float, f32, fredsum)
-OPENCV_HAL_IMPL_RVV_REDUCE(v_uint64x2, sum, uint64, u64, redsum)
-OPENCV_HAL_IMPL_RVV_REDUCE(v_int64x2, sum, int64, i64, redsum)
-OPENCV_HAL_IMPL_RVV_REDUCE(v_uint8x16, min, uchar, u8, redminu)
-OPENCV_HAL_IMPL_RVV_REDUCE(v_int8x16, min, schar, i8, redmin)
-OPENCV_HAL_IMPL_RVV_REDUCE(v_uint16x8, min, ushort, u16, redminu)
-OPENCV_HAL_IMPL_RVV_REDUCE(v_int16x8, min, short, i16, redmin)
-OPENCV_HAL_IMPL_RVV_REDUCE(v_uint32x4, min, unsigned, u32, redminu)
-OPENCV_HAL_IMPL_RVV_REDUCE(v_int32x4, min, int, i32, redmin)
-OPENCV_HAL_IMPL_RVV_REDUCE(v_float32x4, min, float, f32, fredmin)
-OPENCV_HAL_IMPL_RVV_REDUCE(v_uint8x16, max, uchar, u8, redmaxu)
-OPENCV_HAL_IMPL_RVV_REDUCE(v_int8x16, max, schar, i8, redmax)
-OPENCV_HAL_IMPL_RVV_REDUCE(v_uint16x8, max, ushort, u16, redmaxu)
-OPENCV_HAL_IMPL_RVV_REDUCE(v_int16x8, max, short, i16, redmax)
-OPENCV_HAL_IMPL_RVV_REDUCE(v_uint32x4, max, unsigned, u32, redmaxu)
-OPENCV_HAL_IMPL_RVV_REDUCE(v_int32x4, max, int, i32, redmax)
-OPENCV_HAL_IMPL_RVV_REDUCE(v_float32x4, max, float, f32, fredmax)
+OPENCV_HAL_IMPL_RVV_REDUCE_SUM(v_uint8x16, unsigned, u8, 8, redsum)
+OPENCV_HAL_IMPL_RVV_REDUCE_SUM(v_int8x16, int, i8, 8, redsum)
+OPENCV_HAL_IMPL_RVV_REDUCE_SUM(v_uint16x8, unsigned, u16, 16, redsum)
+OPENCV_HAL_IMPL_RVV_REDUCE_SUM(v_int16x8, int, i16, 16, redsum)
+OPENCV_HAL_IMPL_RVV_REDUCE_SUM(v_uint32x4, unsigned, u32, 32, redsum)
+OPENCV_HAL_IMPL_RVV_REDUCE_SUM(v_int32x4, int, i32, 32, redsum)
+OPENCV_HAL_IMPL_RVV_REDUCE_SUM(v_float32x4, float, f32, 32, fredsum)
+OPENCV_HAL_IMPL_RVV_REDUCE_SUM(v_uint64x2, uint64, u64, 64, redsum)
+OPENCV_HAL_IMPL_RVV_REDUCE_SUM(v_int64x2, int64, i64, 64, redsum)
 #if CV_SIMD128_64F
-OPENCV_HAL_IMPL_RVV_REDUCE(v_float64x2, sum, double, f64, fredsum)
+OPENCV_HAL_IMPL_RVV_REDUCE_SUM(v_float64x2, double, f64, 64, fredsum)
 #endif
+
+
+#define OPENCV_HAL_IMPL_RVV_REDUCE(_Tpvec, func, scalartype, suffix, width, red) \
+inline scalartype v_reduce_##func(const _Tpvec& a)  \
+{ \
+    vsetvlmax_e##width##m1(); \
+    _Tpvec res = _Tpvec(v##red##_vs_##suffix##m1_##suffix##m1(a, a, a)); \
+    return scalartype(res.get0()); \
+}
+
+OPENCV_HAL_IMPL_RVV_REDUCE(v_uint8x16, min, uchar, u8, 8, redminu)
+OPENCV_HAL_IMPL_RVV_REDUCE(v_int8x16, min, schar, i8, 8, redmin)
+OPENCV_HAL_IMPL_RVV_REDUCE(v_uint16x8, min, ushort, u16, 16, redminu)
+OPENCV_HAL_IMPL_RVV_REDUCE(v_int16x8, min, short, i16, 16, redmin)
+OPENCV_HAL_IMPL_RVV_REDUCE(v_uint32x4, min, unsigned, u32, 32, redminu)
+OPENCV_HAL_IMPL_RVV_REDUCE(v_int32x4, min, int, i32, 32, redmin)
+OPENCV_HAL_IMPL_RVV_REDUCE(v_float32x4, min, float, f32, 32, fredmin)
+OPENCV_HAL_IMPL_RVV_REDUCE(v_uint8x16, max, uchar, u8, 8, redmaxu)
+OPENCV_HAL_IMPL_RVV_REDUCE(v_int8x16, max, schar, i8, 8, redmax)
+OPENCV_HAL_IMPL_RVV_REDUCE(v_uint16x8, max, ushort, u16, 16, redmaxu)
+OPENCV_HAL_IMPL_RVV_REDUCE(v_int16x8, max, short, i16, 16, redmax)
+OPENCV_HAL_IMPL_RVV_REDUCE(v_uint32x4, max, unsigned, u32, 32, redmaxu)
+OPENCV_HAL_IMPL_RVV_REDUCE(v_int32x4, max, int, i32, 32, redmax)
+OPENCV_HAL_IMPL_RVV_REDUCE(v_float32x4, max, float, f32, 32, fredmax)
+
 
 inline v_float32x4 v_reduce_sum4(const v_float32x4& a, const v_float32x4& b,
                                  const v_float32x4& c, const v_float32x4& d)
