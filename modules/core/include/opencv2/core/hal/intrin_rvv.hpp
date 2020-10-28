@@ -655,9 +655,15 @@ OPENCV_HAL_IMPL_RVV_EXTRACT(v_float64x2, double, f64, 64, vfmv_f_s_f64m1_f64)
 
 #define OPENCV_HAL_IMPL_RVV_LOADSTORE_OP(_Tpvec, _nTpvec, _Tp, hvl, width, suffix) \
 inline _Tpvec v_load(const _Tp* ptr) \
-{ return _Tpvec((_nTpvec)vle8_v_u8m1((uchar*)ptr)); } \
+{ \
+    vsetvlmax_e8m1(); \
+    return _Tpvec((_nTpvec)vle8_v_u8m1((uchar*)ptr)); \
+} \
 inline _Tpvec v_load_aligned(const _Tp* ptr) \
-{ return _Tpvec(vle##width##_v_##suffix##m1(ptr)); } \
+{ \
+    vsetvlmax_e##width##m1(); \
+    return _Tpvec(vle##width##_v_##suffix##m1(ptr)); \
+} \
 inline _Tpvec v_load_low(const _Tp* ptr) \
 { \
     vsetvl_e##width##m1(hvl); \
@@ -666,16 +672,29 @@ inline _Tpvec v_load_low(const _Tp* ptr) \
     return res; \
 } \
 inline void v_store(_Tp* ptr, const _Tpvec& a) \
-{ vse8_v_u8m1((uchar*)ptr, vle8_v_u8m1((uchar*)a.val)); } \
+{ \
+    vsetvlmax_e8m1(); \
+    vse8_v_u8m1((uchar*)ptr, vle8_v_u8m1((uchar*)a.val)); \
+} \
 inline void v_store_aligned(_Tp* ptr, const _Tpvec& a) \
-{ vse##width##_v_##suffix##m1(ptr, a); } \
+{ \
+    vsetvlmax_e##width##m1(); \
+    vse##width##_v_##suffix##m1(ptr, a); \
+} \
 inline void v_store_aligned_nocache(_Tp* ptr, const _Tpvec& a) \
-{ vse##width##_v_##suffix##m1(ptr, a); } \
+{ \
+    vsetvlmax_e##width##m1(); \
+    vse##width##_v_##suffix##m1(ptr, a); \
+} \
 inline void v_store(_Tp* ptr, const _Tpvec& a, hal::StoreMode /*mode*/) \
-{ vse##width##_v_##suffix##m1(ptr, a); } \
+{ \
+    vsetvlmax_e##width##m1(); \
+    vse##width##_v_##suffix##m1(ptr, a); \
+} \
 inline void v_store_low(_Tp* ptr, const _Tpvec& a) \
 { \
     _Tp CV_DECL_ALIGNED(32) tmp_ptr[_Tpvec::nlanes] = {0}; \
+    vsetvlmax_e##width##m1(); \
     vse##width##_v_##suffix##m1(tmp_ptr, a); \
     for(int i = 0; i < _Tpvec::nlanes/2; ++i) \
     { \
@@ -685,6 +704,7 @@ inline void v_store_low(_Tp* ptr, const _Tpvec& a) \
 inline void v_store_high(_Tp* ptr, const _Tpvec& a) \
 { \
     _Tp CV_DECL_ALIGNED(32) tmp_ptr[_Tpvec::nlanes] = {0}; \
+    vsetvlmax_e##width##m1(); \
     vse##width##_v_##suffix##m1(tmp_ptr, a); \
     for(int i = 0; i < _Tpvec::nlanes/2; ++i) \
     { \
