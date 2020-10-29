@@ -2384,6 +2384,7 @@ inline v_int32x4 v_dotprod(const v_int16x8& a, const v_int16x8& b)
 {
     int CV_DECL_ALIGNED(32) ptr[8] = {0};
     v_int32x4 t1, t2;
+    vsetvlmax_e32m2();
     vse32_v_i32m2(ptr, vwmul_vv_i32m2(a, b));
     v_load_deinterleave(ptr, t1, t2);
     return t1 + t2;
@@ -2392,6 +2393,7 @@ inline v_int32x4 v_dotprod(const v_int16x8& a, const v_int16x8& b, const v_int32
 {
     int CV_DECL_ALIGNED(32) ptr[8] = {0};
     v_int32x4 t1, t2;
+    vsetvlmax_e32m2();
     vse32_v_i32m2(ptr, vwmul_vv_i32m2(a, b));
     v_load_deinterleave(ptr, t1, t2);
     return t1 + t2 + c;
@@ -2402,6 +2404,7 @@ inline v_int64x2 v_dotprod(const v_int32x4& a, const v_int32x4& b)
 {
     int64 CV_DECL_ALIGNED(32) ptr[4] = {0};
     v_int64x2 t1, t2;
+    vsetvlmax_e64m2();
     vse64_v_i64m2(ptr, vwmul_vv_i64m2(a, b));
     v_load_deinterleave(ptr, t1, t2);
     return t1 + t2;
@@ -2410,6 +2413,7 @@ inline v_int64x2 v_dotprod(const v_int32x4& a, const v_int32x4& b, const v_int64
 {
     int64 CV_DECL_ALIGNED(32) ptr[4] = {0};
     v_int64x2 t1, t2;
+    vsetvlmax_e64m2();
     vse64_v_i64m2(ptr, vwmul_vv_i64m2(a, b));
     v_load_deinterleave(ptr, t1, t2);
     return t1 + t2 + c;
@@ -2420,6 +2424,7 @@ inline v_uint32x4 v_dotprod_expand(const v_uint8x16& a, const v_uint8x16& b)
 {
     unsigned CV_DECL_ALIGNED(32) ptr[16] = {0};
     v_uint32x4 t1, t2, t3, t4;
+    vsetvlmax_e32m4();
     vse32_v_u32m4(ptr, vqmaccu_vv_u32m4(vzero_u32m4(), a, b));
     v_load_deinterleave(ptr, t1, t2, t3, t4);
     return t1 + t2 + t3 + t4;
@@ -2429,6 +2434,7 @@ inline v_uint32x4 v_dotprod_expand(const v_uint8x16& a, const v_uint8x16& b,
 {
     unsigned CV_DECL_ALIGNED(32) ptr[16] = {0};
     v_uint32x4 t1, t2, t3, t4;
+    vsetvlmax_e32m4();
     vse32_v_u32m4(ptr, vqmaccu_vv_u32m4(vzero_u32m4(), a, b));
     v_load_deinterleave(ptr, t1, t2, t3, t4);
     return t1 + t2 + t3 + t4 + c;
@@ -2438,6 +2444,7 @@ inline v_int32x4 v_dotprod_expand(const v_int8x16& a, const v_int8x16& b)
 {
     int CV_DECL_ALIGNED(32) ptr[16] = {0};
     v_int32x4 t1, t2, t3, t4;
+    vsetvlmax_e32m4();
     vse32_v_i32m4(ptr, vqmacc_vv_i32m4(vzero_i32m4(), a, b));
     v_load_deinterleave(ptr, t1, t2, t3, t4);
     return t1 + t2 + t3 + t4;
@@ -2447,6 +2454,7 @@ inline v_int32x4 v_dotprod_expand(const v_int8x16& a, const v_int8x16& b,
 {
     int CV_DECL_ALIGNED(32) ptr[16] = {0};
     v_int32x4 t1, t2, t3, t4;
+    vsetvlmax_e32m4();
     vse32_v_i32m4(ptr, vqmacc_vv_i32m4(vzero_i32m4(), a, b));
     v_load_deinterleave(ptr, t1, t2, t3, t4);
     return t1 + t2 + t3 + t4 + c;
@@ -2457,6 +2465,7 @@ inline v_uint64x2 v_dotprod_expand(const v_uint16x8& a, const v_uint16x8& b)
 {
     uint64 CV_DECL_ALIGNED(32) ptr[8] = {0};
     v_uint64x2 t1, t2, t3, t4;
+    vsetvlmax_e64m4();
     vse64_v_u64m4(ptr, vqmaccu_vv_u64m4(vzero_u64m4(), a, b));
     v_load_deinterleave(ptr, t1, t2, t3, t4);
     return t1 + t2 + t3 + t4;
@@ -2465,6 +2474,7 @@ inline v_uint64x2 v_dotprod_expand(const v_uint16x8& a, const v_uint16x8& b, con
 {
     uint64 CV_DECL_ALIGNED(32) ptr[8] = {0};
     v_uint64x2 t1, t2, t3, t4;
+    vsetvlmax_e64m4();
     vse64_v_u64m4(ptr, vqmaccu_vv_u64m4(vzero_u64m4(), a, b));
     v_load_deinterleave(ptr, t1, t2, t3, t4);
     return t1 + t2 + t3 + t4 + c;
@@ -2474,6 +2484,7 @@ inline v_int64x2 v_dotprod_expand(const v_int16x8& a, const v_int16x8& b)
 {
     int64 CV_DECL_ALIGNED(32) ptr[8] = {0};
     v_int64x2 t1, t2, t3, t4;
+    vsetvlmax_e64m4();
     vse64_v_i64m4(ptr, vqmacc_vv_i64m4(vzero_i64m4(), a, b));
     v_load_deinterleave(ptr, t1, t2, t3, t4);
     return t1 + t2 + t3 + t4;
@@ -2483,6 +2494,7 @@ inline v_int64x2 v_dotprod_expand(const v_int16x8& a, const v_int16x8& b,
 {
     int64 CV_DECL_ALIGNED(32) ptr[8] = {0};
     v_int64x2 t1, t2, t3, t4;
+    vsetvlmax_e64m4();
     vse64_v_i64m4(ptr, vqmacc_vv_i64m4(vzero_i64m4(), a, b));
     v_load_deinterleave(ptr, t1, t2, t3, t4);
     return t1 + t2 + t3 + t4 + c;
@@ -2503,6 +2515,7 @@ inline v_float64x2 v_dotprod_expand(const v_int32x4& a,   const v_int32x4& b,
 inline v_int32x4 v_dotprod_fast(const v_int16x8& a, const v_int16x8& b)
 {
     int CV_DECL_ALIGNED(32) ptr[8] = {0};
+    vsetvlmax_e32m2();
     vse32_v_i32m2(ptr, vwmul_vv_i32m2(a, b));
     v_int32x4 t1 = v_load(ptr);
     v_int32x4 t2 = v_load(ptr+4);
@@ -2511,6 +2524,7 @@ inline v_int32x4 v_dotprod_fast(const v_int16x8& a, const v_int16x8& b)
 inline v_int32x4 v_dotprod_fast(const v_int16x8& a, const v_int16x8& b, const v_int32x4& c)
 {
     int CV_DECL_ALIGNED(32) ptr[8] = {0};
+    vsetvlmax_e32m2();
     vse32_v_i32m2(ptr, vwmul_vv_i32m2(a, b));
     v_int32x4 t1 = v_load(ptr);
     v_int32x4 t2 = v_load(ptr+4);
@@ -2521,6 +2535,7 @@ inline v_int32x4 v_dotprod_fast(const v_int16x8& a, const v_int16x8& b, const v_
 inline v_int64x2 v_dotprod_fast(const v_int32x4& a, const v_int32x4& b)
 {
     int64 CV_DECL_ALIGNED(32) ptr[4] = {0};
+    vsetvlmax_e64m2();
     vse64_v_i64m2(ptr, vwmul_vv_i64m2(a, b));
     v_int64x2 t1 = v_load(ptr);
     v_int64x2 t2 = v_load(ptr+2);
@@ -2529,6 +2544,7 @@ inline v_int64x2 v_dotprod_fast(const v_int32x4& a, const v_int32x4& b)
 inline v_int64x2 v_dotprod_fast(const v_int32x4& a, const v_int32x4& b, const v_int64x2& c)
 {
     int64 CV_DECL_ALIGNED(32) ptr[4] = {0};
+    vsetvlmax_e64m2();
     vse64_v_i64m2(ptr, vwmul_vv_i64m2(a, b));
     v_int64x2 t1 = v_load(ptr);
     v_int64x2 t2 = v_load(ptr+2);
@@ -2540,6 +2556,7 @@ inline v_int64x2 v_dotprod_fast(const v_int32x4& a, const v_int32x4& b, const v_
 inline v_uint32x4 v_dotprod_expand_fast(const v_uint8x16& a, const v_uint8x16& b)
 {
     unsigned CV_DECL_ALIGNED(32) ptr[16] = {0};
+    vsetvlmax_e32m4();
     vse32_v_u32m4(ptr, vqmaccu_vv_u32m4(vzero_u32m4(), a, b));
     v_uint32x4 t1 = v_load(ptr);
     v_uint32x4 t2 = v_load(ptr+4);
@@ -2550,6 +2567,7 @@ inline v_uint32x4 v_dotprod_expand_fast(const v_uint8x16& a, const v_uint8x16& b
 inline v_uint32x4 v_dotprod_expand_fast(const v_uint8x16& a, const v_uint8x16& b, const v_uint32x4& c)
 {
     unsigned CV_DECL_ALIGNED(32) ptr[16] = {0};
+    vsetvlmax_e32m4();
     vse32_v_u32m4(ptr, vqmaccu_vv_u32m4(vzero_u32m4(), a, b));
     v_uint32x4 t1 = v_load(ptr);
     v_uint32x4 t2 = v_load(ptr+4);
@@ -2560,6 +2578,7 @@ inline v_uint32x4 v_dotprod_expand_fast(const v_uint8x16& a, const v_uint8x16& b
 inline v_int32x4 v_dotprod_expand_fast(const v_int8x16& a, const v_int8x16& b)
 {
     int CV_DECL_ALIGNED(32) ptr[16] = {0};
+    vsetvlmax_e32m4();
     vse32_v_i32m4(ptr, vqmacc_vv_i32m4(vzero_i32m4(), a, b));
     v_int32x4 t1 = v_load(ptr);
     v_int32x4 t2 = v_load(ptr+4);
@@ -2570,6 +2589,7 @@ inline v_int32x4 v_dotprod_expand_fast(const v_int8x16& a, const v_int8x16& b)
 inline v_int32x4 v_dotprod_expand_fast(const v_int8x16& a, const v_int8x16& b, const v_int32x4& c)
 {
     int CV_DECL_ALIGNED(32) ptr[16] = {0};
+    vsetvlmax_e32m4();
     vse32_v_i32m4(ptr, vqmacc_vv_i32m4(vzero_i32m4(), a, b));
     v_int32x4 t1 = v_load(ptr);
     v_int32x4 t2 = v_load(ptr+4);
@@ -2582,6 +2602,7 @@ inline v_int32x4 v_dotprod_expand_fast(const v_int8x16& a, const v_int8x16& b, c
 inline v_uint64x2 v_dotprod_expand_fast(const v_uint16x8& a, const v_uint16x8& b)
 {
     uint64 CV_DECL_ALIGNED(32) ptr[8] = {0};
+    vsetvlmax_e64m4();
     vse64_v_u64m4(ptr, vqmaccu_vv_u64m4(vzero_u64m4(), a, b));
     v_uint64x2 t1 = v_load(ptr);
     v_uint64x2 t2 = v_load(ptr+2);
@@ -2592,6 +2613,7 @@ inline v_uint64x2 v_dotprod_expand_fast(const v_uint16x8& a, const v_uint16x8& b
 inline v_uint64x2 v_dotprod_expand_fast(const v_uint16x8& a, const v_uint16x8& b, const v_uint64x2& c)
 {
     uint64 CV_DECL_ALIGNED(32) ptr[8] = {0};
+    vsetvlmax_e64m4();
     vse64_v_u64m4(ptr, vqmaccu_vv_u64m4(vzero_u64m4(), a, b));
     v_uint64x2 t1 = v_load(ptr);
     v_uint64x2 t2 = v_load(ptr+2);
@@ -2602,6 +2624,7 @@ inline v_uint64x2 v_dotprod_expand_fast(const v_uint16x8& a, const v_uint16x8& b
 inline v_int64x2 v_dotprod_expand_fast(const v_int16x8& a, const v_int16x8& b)
 {
     int64 CV_DECL_ALIGNED(32) ptr[8] = {0};
+    vsetvlmax_e64m4();
     vse64_v_i64m4(ptr, vqmacc_vv_i64m4(vzero_i64m4(), a, b));
     v_int64x2 t1 = v_load(ptr);
     v_int64x2 t2 = v_load(ptr+2);
@@ -2612,6 +2635,7 @@ inline v_int64x2 v_dotprod_expand_fast(const v_int16x8& a, const v_int16x8& b)
 inline v_int64x2 v_dotprod_expand_fast(const v_int16x8& a, const v_int16x8& b, const v_int64x2& c)
 {
     int64 CV_DECL_ALIGNED(32) ptr[8] = {0};
+    vsetvlmax_e64m4();
     vse64_v_i64m4(ptr, vqmacc_vv_i64m4(vzero_i64m4(), a, b));
     v_int64x2 t1 = v_load(ptr);
     v_int64x2 t2 = v_load(ptr+2);
