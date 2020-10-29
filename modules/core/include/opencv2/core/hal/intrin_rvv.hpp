@@ -1259,34 +1259,58 @@ inline v_float64x2 operator ~ (const v_float64x2& a)
 
 ////////////// Bitwise shifts //////////////
 
-#define OPENCV_HAL_IMPL_RVV_UNSIGNED_SHIFT_OP(_Tpvec, suffix) \
+#define OPENCV_HAL_IMPL_RVV_UNSIGNED_SHIFT_OP(_Tpvec, suffix, width) \
 inline _Tpvec operator << (const _Tpvec& a, int n) \
-{ return _Tpvec(vsll_vx_##suffix##m1(a, uint8_t(n))); } \
+{ \
+    vsetvlmax_e##width##m1(); \
+    return _Tpvec(vsll_vx_##suffix##m1(a, uint8_t(n))); \
+} \
 inline _Tpvec operator >> (const _Tpvec& a, int n) \
-{ return _Tpvec(vsrl_vx_##suffix##m1(a, uint8_t(n))); } \
+{ \
+    vsetvlmax_e##width##m1(); \
+    return _Tpvec(vsrl_vx_##suffix##m1(a, uint8_t(n))); \
+} \
 template<int n> inline _Tpvec v_shl(const _Tpvec& a) \
-{ return _Tpvec(vsll_vx_##suffix##m1(a, uint8_t(n))); } \
+{ \
+    vsetvlmax_e##width##m1(); \
+    return _Tpvec(vsll_vx_##suffix##m1(a, uint8_t(n))); \
+} \
 template<int n> inline _Tpvec v_shr(const _Tpvec& a) \
-{ return _Tpvec(vsrl_vx_##suffix##m1(a, uint8_t(n))); }
+{ \
+    vsetvlmax_e##width##m1(); \
+    return _Tpvec(vsrl_vx_##suffix##m1(a, uint8_t(n))); \
+}
 
-#define OPENCV_HAL_IMPL_RVV_SIGNED_SHIFT_OP(_Tpvec, suffix) \
+#define OPENCV_HAL_IMPL_RVV_SIGNED_SHIFT_OP(_Tpvec, suffix, width) \
 inline _Tpvec operator << (const _Tpvec& a, int n) \
-{ return _Tpvec(vsll_vx_##suffix##m1(a, uint8_t(n))); } \
+{ \
+    vsetvlmax_e##width##m1(); \
+    return _Tpvec(vsll_vx_##suffix##m1(a, uint8_t(n))); \
+} \
 inline _Tpvec operator >> (const _Tpvec& a, int n) \
-{ return _Tpvec(vsra_vx_##suffix##m1(a, uint8_t(n))); } \
+{ \
+    vsetvlmax_e##width##m1(); \
+    return _Tpvec(vsra_vx_##suffix##m1(a, uint8_t(n))); \
+} \
 template<int n> inline _Tpvec v_shl(const _Tpvec& a) \
-{ return _Tpvec(vsll_vx_##suffix##m1(a, uint8_t(n))); } \
+{ \
+    vsetvlmax_e##width##m1(); \
+    return _Tpvec(vsll_vx_##suffix##m1(a, uint8_t(n))); \
+} \
 template<int n> inline _Tpvec v_shr(const _Tpvec& a) \
-{ return _Tpvec(vsra_vx_##suffix##m1(a, uint8_t(n))); }
+{ \
+    vsetvlmax_e##width##m1(); \
+    return _Tpvec(vsra_vx_##suffix##m1(a, uint8_t(n))); \
+}
 
-OPENCV_HAL_IMPL_RVV_UNSIGNED_SHIFT_OP(v_uint8x16, u8)
-OPENCV_HAL_IMPL_RVV_UNSIGNED_SHIFT_OP(v_uint16x8, u16)
-OPENCV_HAL_IMPL_RVV_UNSIGNED_SHIFT_OP(v_uint32x4, u32)
-OPENCV_HAL_IMPL_RVV_UNSIGNED_SHIFT_OP(v_uint64x2, u64)
-OPENCV_HAL_IMPL_RVV_SIGNED_SHIFT_OP(v_int8x16, i8)
-OPENCV_HAL_IMPL_RVV_SIGNED_SHIFT_OP(v_int16x8, i16)
-OPENCV_HAL_IMPL_RVV_SIGNED_SHIFT_OP(v_int32x4, i32)
-OPENCV_HAL_IMPL_RVV_SIGNED_SHIFT_OP(v_int64x2, i64)
+OPENCV_HAL_IMPL_RVV_UNSIGNED_SHIFT_OP(v_uint8x16, u8, 8)
+OPENCV_HAL_IMPL_RVV_UNSIGNED_SHIFT_OP(v_uint16x8, u16, 16)
+OPENCV_HAL_IMPL_RVV_UNSIGNED_SHIFT_OP(v_uint32x4, u32, 32)
+OPENCV_HAL_IMPL_RVV_UNSIGNED_SHIFT_OP(v_uint64x2, u64, 64)
+OPENCV_HAL_IMPL_RVV_SIGNED_SHIFT_OP(v_int8x16, i8, 8)
+OPENCV_HAL_IMPL_RVV_SIGNED_SHIFT_OP(v_int16x8, i16, 16)
+OPENCV_HAL_IMPL_RVV_SIGNED_SHIFT_OP(v_int32x4, i32, 32)
+OPENCV_HAL_IMPL_RVV_SIGNED_SHIFT_OP(v_int64x2, i64, 64)
 
 
 ////////////// Comparison //////////////
