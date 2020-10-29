@@ -1568,36 +1568,45 @@ inline v_float64x2 v_muladd(const v_float64x2& a, const v_float64x2& b, const v_
 
 ////////////// Check all/any //////////////
 
-#define OPENCV_HAL_IMPL_RVV_CHECK_ALLANY(_Tpvec, suffix) \
+#define OPENCV_HAL_IMPL_RVV_CHECK_ALLANY(_Tpvec, suffix, shift, width) \
 inline bool v_check_all(const _Tpvec& a) \
 { \
-    return ((v_reduce_max(a >= v_setzero_##suffix())) == 0); \
+    vsetvlmax_e##width##m1(); \
+    v_uint64x2 v = v_uint64x2((vuint64m1_t)vsrl_vx_##suffix##m1(vnot_v_##suffix##m1(a), shift)); \
+    return (v.val[0] | v.val[1]) == 0; \
 } \
 inline bool v_check_any(const _Tpvec& a) \
 { \
-    return ((v_reduce_max(a < v_setzero_##suffix())) == 1); \
+    vsetvlmax_e##width##m1(); \
+    v_uint64x2 v = v_uint64x2((vuint64m1_t)vsrl_vx_##suffix##m1(a, shift)); \
+    return (v.val[0] | v.val[1]) != 0; \
 }
 
-OPENCV_HAL_IMPL_RVV_CHECK_ALLANY(v_uint8x16, u8)
-OPENCV_HAL_IMPL_RVV_CHECK_ALLANY(v_int8x16, s8)
-OPENCV_HAL_IMPL_RVV_CHECK_ALLANY(v_uint16x8, u16)
-OPENCV_HAL_IMPL_RVV_CHECK_ALLANY(v_int16x8, s16)
-OPENCV_HAL_IMPL_RVV_CHECK_ALLANY(v_uint32x4, u32)
-OPENCV_HAL_IMPL_RVV_CHECK_ALLANY(v_int32x4, s32)
-OPENCV_HAL_IMPL_RVV_CHECK_ALLANY(v_float32x4, f32)
+OPENCV_HAL_IMPL_RVV_CHECK_ALLANY(v_uint8x16, u8, 7, 8)
+OPENCV_HAL_IMPL_RVV_CHECK_ALLANY(v_uint16x8, u16, 15, 16)
+OPENCV_HAL_IMPL_RVV_CHECK_ALLANY(v_uint32x4, u32, 31, 32)
+OPENCV_HAL_IMPL_RVV_CHECK_ALLANY(v_uint64x2, u64, 63, 64)
 
-inline bool v_check_all(const v_uint64x2& a)
-{
-    v_uint64x2 dst = v_uint64x2(vzero_u64m1());
-    vredmaxu_vs_u64m1_u64m1(dst, (a >= v_setzero_u64()), vzero_u64m1());
-    return bool(dst.get0());
-}
-inline bool v_check_any(const v_uint64x2& a)
-{
-    v_uint64x2 dst = v_uint64x2(vzero_u64m1());
-    vredmaxu_vs_u64m1_u64m1(dst, (a < v_setzero_u64()), vzero_u64m1());
-    return bool(dst.get0());
-}
+
+inline bool v_check_all(const v_int8x16& a)
+{ return v_check_all(v_reinterpret_as_u8(a)); }
+inline bool v_check_any(const v_int8x16& a)
+{ return v_check_any(v_reinterpret_as_u8(a)); }
+
+inline bool v_check_all(const v_int16x8& a)
+{ return v_check_all(v_reinterpret_as_u16(a)); }
+inline bool v_check_any(const v_int16x8& a)
+{ return v_check_any(v_reinterpret_as_u16(a)); }
+
+inline bool v_check_all(const v_int32x4& a)
+{ return v_check_all(v_reinterpret_as_u32(a)); }
+inline bool v_check_any(const v_int32x4& a)
+{ return v_check_any(v_reinterpret_as_u32(a)); }
+
+inline bool v_check_all(const v_float32x4& a)
+{ return v_check_all(v_reinterpret_as_u32(a)); }
+inline bool v_check_any(const v_float32x4& a)
+{ return v_check_any(v_reinterpret_as_u32(a)); }
 
 inline bool v_check_all(const v_int64x2& a)
 { return v_check_all(v_reinterpret_as_u64(a)); }
