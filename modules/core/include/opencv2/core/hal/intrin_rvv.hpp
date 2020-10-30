@@ -202,6 +202,7 @@ struct v_uint8x16
     v_uint8x16() {}
     explicit v_uint8x16(vuint8m1_t v)
     {
+        vsetvlmax_e8m1();
         vse8_v_u8m1(val, v);
     }
     v_uint8x16(uchar v0, uchar v1, uchar v2, uchar v3, uchar v4, uchar v5, uchar v6, uchar v7,
@@ -215,6 +216,7 @@ struct v_uint8x16
     }
     operator vuint8m1_t() const
     {
+        vsetvlmax_e8m1();
         return vle8_v_u8m1(val);
     }
     uchar get0() const
@@ -233,6 +235,7 @@ struct v_int8x16
     v_int8x16() {}
     explicit v_int8x16(vint8m1_t v)
     {
+        vsetvlmax_e8m1();
         vse8_v_i8m1(val, v);
     }    
     v_int8x16(schar v0, schar v1, schar v2, schar v3, schar v4, schar v5, schar v6, schar v7,
@@ -246,6 +249,7 @@ struct v_int8x16
     }
     operator vint8m1_t() const
     {
+        vsetvlmax_e8m1();
         return vle8_v_i8m1(val);
     }
     schar get0() const
@@ -264,6 +268,7 @@ struct v_uint16x8
     v_uint16x8() {}
     explicit v_uint16x8(vuint16m1_t v)
     {
+        vsetvlmax_e16m1();
         vse16_v_u16m1(val, v);
     }    
     v_uint16x8(ushort v0, ushort v1, ushort v2, ushort v3, ushort v4, ushort v5, ushort v6, ushort v7)
@@ -276,6 +281,7 @@ struct v_uint16x8
     }
     operator vuint16m1_t() const
     {
+        vsetvlmax_e16m1();
         return vle16_v_u16m1(val);
     }
     ushort get0() const
@@ -294,6 +300,7 @@ struct v_int16x8
     v_int16x8() {}
     explicit v_int16x8(vint16m1_t v)
     {
+        vsetvlmax_e16m1();
         vse16_v_i16m1(val, v);
     }    
     v_int16x8(short v0, short v1, short v2, short v3, short v4, short v5, short v6, short v7)
@@ -306,6 +313,7 @@ struct v_int16x8
     }
     operator vint16m1_t() const
     {
+        vsetvlmax_e16m1();
         return vle16_v_i16m1(val);
     }
     short get0() const
@@ -324,6 +332,7 @@ struct v_uint32x4
     v_uint32x4() {}
     explicit v_uint32x4(vuint32m1_t v)
     {
+        vsetvlmax_e32m1();
         vse32_v_u32m1(val, v);
     }
     v_uint32x4(unsigned v0, unsigned v1, unsigned v2, unsigned v3)
@@ -336,6 +345,7 @@ struct v_uint32x4
     }
     operator vuint32m1_t() const
     {
+        vsetvlmax_e32m1();
         return vle32_v_u32m1(val);
     }
     unsigned get0() const
@@ -354,6 +364,7 @@ struct v_int32x4
     v_int32x4() {}
     explicit v_int32x4(vint32m1_t v)
     {
+        vsetvlmax_e32m1();
         vse32_v_i32m1(val, v);
     }    
     v_int32x4(int v0, int v1, int v2, int v3)
@@ -366,6 +377,7 @@ struct v_int32x4
     }
     operator vint32m1_t() const
     {
+        vsetvlmax_e32m1();
         return vle32_v_i32m1(val);
     }    
     int get0() const
@@ -383,6 +395,7 @@ struct v_float32x4
     v_float32x4() {}
     explicit v_float32x4(vfloat32m1_t v)
     {
+        vsetvlmax_e32m1();
         vse32_v_f32m1(val, v);
     }    
     v_float32x4(float v0, float v1, float v2, float v3)
@@ -395,6 +408,7 @@ struct v_float32x4
     }
     operator vfloat32m1_t() const
     {
+        vsetvlmax_e32m1();
         return vle32_v_f32m1(val);
     } 
     float get0() const
@@ -412,6 +426,7 @@ struct v_uint64x2
     v_uint64x2() {}
     explicit v_uint64x2(vuint64m1_t v)
     {
+        vsetvlmax_e64m1();
         vse64_v_u64m1(val, v);
     }    
     v_uint64x2(uint64 v0, uint64 v1)
@@ -424,6 +439,7 @@ struct v_uint64x2
     }
     operator vuint64m1_t() const
     {
+        vsetvlmax_e64m1();
         return vle64_v_u64m1(val);
     }
     uint64 get0() const
@@ -442,6 +458,7 @@ struct v_int64x2
     v_int64x2() {}
     explicit v_int64x2(vint64m1_t v)
     {
+        vsetvlmax_e64m1();
         vse64_v_i64m1(val, v);
     }
     v_int64x2(int64 v0, int64 v1)
@@ -454,6 +471,7 @@ struct v_int64x2
     }
     operator vint64m1_t() const
     {
+        vsetvlmax_e64m1();
         return vle64_v_i64m1(val);
     }
     int64 get0() const
@@ -473,6 +491,7 @@ struct v_float64x2
     v_float64x2() {}
     explicit v_float64x2(vfloat64m1_t v)
     {
+        vsetvlmax_e64m1();
         vse64_v_f64m1(val, v);
     }
     v_float64x2(double v0, double v1)
@@ -485,6 +504,7 @@ struct v_float64x2
     }
     operator vfloat64m1_t() const
     {
+        vsetvlmax_e64m1();
         return vle64_v_f64m1(val);
     }
     double get0() const
