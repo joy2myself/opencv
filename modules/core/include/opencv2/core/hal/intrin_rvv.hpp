@@ -1689,21 +1689,22 @@ OPENCV_HAL_IMPL_RVV_REDUCE_SAD(v_float32x4, float)
 
 ////////////// Select //////////////
 
-#define OPENCV_HAL_IMPL_RVV_SELECT(_Tpvec, suffix, ne) \
+#define OPENCV_HAL_IMPL_RVV_SELECT(_Tpvec, merge, ne, width) \
 inline _Tpvec v_select(const _Tpvec& mask, const _Tpvec& a, const _Tpvec& b) \
 { \
-    return _Tpvec(vmerge_vvm_##suffix##m1(ne(mask, vzero_##suffix##m1()), a, b)); \
+    vsetvlmax_e##width##m1(); \
+    return _Tpvec(merge(ne(mask, 0), b, a)); \
 }
 
-OPENCV_HAL_IMPL_RVV_SELECT(v_uint8x16, u8, vmsne_vv_u8m1_b8)
-OPENCV_HAL_IMPL_RVV_SELECT(v_int8x16, i8, vmsne_vv_i8m1_b8)
-OPENCV_HAL_IMPL_RVV_SELECT(v_uint16x8, u16, vmsne_vv_u16m1_b16)
-OPENCV_HAL_IMPL_RVV_SELECT(v_int16x8, i16, vmsne_vv_i16m1_b16)
-OPENCV_HAL_IMPL_RVV_SELECT(v_uint32x4, u32, vmsne_vv_u32m1_b32)
-OPENCV_HAL_IMPL_RVV_SELECT(v_int32x4, i32, vmsne_vv_i32m1_b32)
-OPENCV_HAL_IMPL_RVV_SELECT(v_float32x4, f32, vmfne_vv_f32m1_b32)
+OPENCV_HAL_IMPL_RVV_SELECT(v_uint8x16, vmerge_vvm_u8m1, vmsne_vx_u8m1_b8, 8)
+OPENCV_HAL_IMPL_RVV_SELECT(v_int8x16, vmerge_vvm_i8m1, vmsne_vx_i8m1_b8, 8)
+OPENCV_HAL_IMPL_RVV_SELECT(v_uint16x8, vmerge_vvm_u16m1, vmsne_vx_u16m1_b16, 16)
+OPENCV_HAL_IMPL_RVV_SELECT(v_int16x8, vmerge_vvm_i16m1, vmsne_vx_i16m1_b16, 16)
+OPENCV_HAL_IMPL_RVV_SELECT(v_uint32x4, vmerge_vvm_u32m1, vmsne_vx_u32m1_b32, 32)
+OPENCV_HAL_IMPL_RVV_SELECT(v_int32x4, vmerge_vvm_i32m1, vmsne_vx_i32m1_b32, 32)
+OPENCV_HAL_IMPL_RVV_SELECT(v_float32x4, vmerge_vvm_f32m1, vmfne_vf_f32m1_b32, 32)
 #if CV_SIMD128_64F
-OPENCV_HAL_IMPL_RVV_SELECT(v_float64x2, f64, vmfne_vv_f64m1_b64)
+OPENCV_HAL_IMPL_RVV_SELECT(v_float64x2, vmerge_vvm_f64m1, vmfne_vf_f64m1_b64, 64)
 #endif
 
 ////////////// Rotate shift //////////////
