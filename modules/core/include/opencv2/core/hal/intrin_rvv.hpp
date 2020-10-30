@@ -1709,40 +1709,44 @@ OPENCV_HAL_IMPL_RVV_SELECT(v_float64x2, vmerge_vvm_f64m1, vmfne_vf_f64m1_b64, 64
 
 ////////////// Rotate shift //////////////
 
-#define OPENCV_HAL_IMPL_RVV_ROTATE_OP(_Tpvec, suffix) \
+#define OPENCV_HAL_IMPL_RVV_ROTATE_OP(_Tpvec, suffix, width) \
 template<int n> inline _Tpvec v_rotate_right(const _Tpvec& a) \
 { \
+    vsetvlmax_e##width##m1(); \
     return _Tpvec(vslidedown_vx_##suffix##m1(vzero_##suffix##m1(), a, n)); \
 } \
 template<int n> inline _Tpvec v_rotate_left(const _Tpvec& a) \
 { \
+    vsetvlmax_e##width##m1(); \
     return _Tpvec(vslideup_vx_##suffix##m1(vzero_##suffix##m1(), a, n)); \
 } \
 template<> inline _Tpvec v_rotate_left<0>(const _Tpvec& a) \
 { return a; } \
 template<int n> inline _Tpvec v_rotate_right(const _Tpvec& a, const _Tpvec& b) \
 { \
-    return _Tpvec(vslidedown_vx_##suffix##m1(b, a, n)); \
+    vsetvlmax_e##width##m1(); \
+    return _Tpvec(vslideup_vx_##suffix##m1(vslidedown_vx_##suffix##m1(vzero_##suffix##m1(), a, n), b, _Tpvec::nlanes - n)); \
 } \
 template<int n> inline _Tpvec v_rotate_left(const _Tpvec& a, const _Tpvec& b) \
 { \
-    return _Tpvec(vslideup_vx_##suffix##m1(b, a, n)); \
+    vsetvlmax_e##width##m1(); \
+    return _Tpvec(vslideup_vx_##suffix##m1(vslidedown_vx_##suffix##m1(vzero_##suffix##m1(), b, _Tpvec::nlanes - n), a, n)); \
 } \
 template<> inline _Tpvec v_rotate_left<0>(const _Tpvec& a, const _Tpvec& b) \
 { CV_UNUSED(b); return a; }
 
 
-OPENCV_HAL_IMPL_RVV_ROTATE_OP(v_uint8x16, u8)
-OPENCV_HAL_IMPL_RVV_ROTATE_OP(v_int8x16, i8)
-OPENCV_HAL_IMPL_RVV_ROTATE_OP(v_uint16x8, u16)
-OPENCV_HAL_IMPL_RVV_ROTATE_OP(v_int16x8, i16)
-OPENCV_HAL_IMPL_RVV_ROTATE_OP(v_uint32x4, u32)
-OPENCV_HAL_IMPL_RVV_ROTATE_OP(v_int32x4, i32)
-OPENCV_HAL_IMPL_RVV_ROTATE_OP(v_float32x4, f32)
-OPENCV_HAL_IMPL_RVV_ROTATE_OP(v_uint64x2, u64)
-OPENCV_HAL_IMPL_RVV_ROTATE_OP(v_int64x2, i64)
+OPENCV_HAL_IMPL_RVV_ROTATE_OP(v_uint8x16, u8, 8)
+OPENCV_HAL_IMPL_RVV_ROTATE_OP(v_int8x16, i8, 8)
+OPENCV_HAL_IMPL_RVV_ROTATE_OP(v_uint16x8, u16, 16)
+OPENCV_HAL_IMPL_RVV_ROTATE_OP(v_int16x8, i16, 16)
+OPENCV_HAL_IMPL_RVV_ROTATE_OP(v_uint32x4, u32, 32)
+OPENCV_HAL_IMPL_RVV_ROTATE_OP(v_int32x4, i32, 32)
+OPENCV_HAL_IMPL_RVV_ROTATE_OP(v_float32x4, f32, 32)
+OPENCV_HAL_IMPL_RVV_ROTATE_OP(v_uint64x2, u64, 64)
+OPENCV_HAL_IMPL_RVV_ROTATE_OP(v_int64x2, i64, 64)
 #if CV_SIMD128_64F
-OPENCV_HAL_IMPL_RVV_ROTATE_OP(v_float64x2, f64)
+OPENCV_HAL_IMPL_RVV_ROTATE_OP(v_float64x2, f64, 64)
 #endif
 
 ////////////// Convert to float //////////////
