@@ -17,53 +17,134 @@ CV_CPU_OPTIMIZATION_HAL_NAMESPACE_BEGIN
 
 //////////// Unsupported native intrinsics in C++ ////////////
 
-class vuint8mf2_t
+struct vuint8mf2_t
 {
-    uchar v[8] = {0};
+    uchar val[8] = {0};
+    vuint8mf2_t() {}
+    vuint8mf2_t(const uchar* ptr)
+    {
+        for (int i = 0; i < 8; ++i)
+        {
+            val[i] = ptr[i];
+        }
+    }
 };
-class vint8mf2_t
+struct vint8mf2_t
 {
-    schar v[8] = {0};
+    schar val[8] = {0};
+    vint8mf2_t() {}
+    vint8mf2_t(const schar* ptr)
+    {
+        for (int i = 0; i < 8; ++i)
+        {
+            val[i] = ptr[i];
+        }
+    }
 };
-class vuint16mf2_t
+struct vuint16mf2_t
 {
-    ushort v[4] = {0};
+    ushort val[4] = {0};
+    vuint16mf2_t() {}
+    vuint16mf2_t(const ushort* ptr)
+    {
+        for (int i = 0; i < 4; ++i)
+        {
+            val[i] = ptr[i];
+        }
+    }
 };
-class vint16mf2_t
+struct vint16mf2_t
 {
-    short v[4] = {0};
+    short val[4] = {0};
+    vint16mf2_t() {}
+    vint16mf2_t(const short* ptr)
+    {
+        for (int i = 0; i < 4; ++i)
+        {
+            val[i] = ptr[i];
+        }
+    }
 };
-class vuint32mf2_t
+struct vuint32mf2_t
 {
-    unsigned v[2] = {0};
+    unsigned val[2] = {0};
+    vuint32mf2_t() {}
+    vuint32mf2_t(const unsigned* ptr)
+    {
+        val[0] = ptr[0];
+        val[1] = ptr[1];
+    }
 };
-class vint32mf2_t
+struct vint32mf2_t
 {
-    int v[2] = {0};
+    int val[2] = {0};
+    vint32mf2_t() {}
+    vint32mf2_t(const int* ptr)
+    {
+        val[0] = ptr[0];
+        val[1] = ptr[1];
+    }
 };
-class vfloat32mf2_t
+struct vfloat32mf2_t
 {
-    float v[2] = {0};
+    float val[2] = {0};
+    vfloat32mf2_t() {}
+    vfloat32mf2_t(const float* ptr)
+    {
+        val[0] = ptr[0];
+        val[1] = ptr[1];
+    }
 };
-class vuint64mf2_t
+struct vuint64mf2_t
 {
-    uint64 v[1] = {0};
+    uint64 val[1] = {0};
+    vuint64mf2_t() {}
+    vuint64mf2_t(const uint64* ptr)
+    {
+        val[0] = ptr[0];
+    }
 };
-class vint64mf2_t
+struct vint64mf2_t
 {
-    int64 v[1] = {0};
+    int64 val[1] = {0};
+    vint64mf2_t() {}
+    vint64mf2_t(const int64* ptr)
+    {
+        val[0] = ptr[0];
+    }
 };
-class vfloat64mf2_t
+struct vfloat64mf2_t
 {
-    double v[1] = {0};
+    double val[1] = {0};
+    vfloat64mf2_t() {}
+    vfloat64mf2_t(const double* ptr)
+    {
+        val[0] = ptr[0];
+    }
 };
-class vuint8mf4_t
+struct vuint8mf4_t
 {
-    uchar v[4] = {0};
+    uchar val[4] = {0};
+    vuint8mf4_t() {}
+    vuint8mf4_t(const uchar* ptr)
+    {
+        for (int i = 0; i < 4; ++i)
+        {
+            val[i] = ptr[i];
+        }
+    }
 };
-class vint8mf4_t
+struct vint8mf4_t
 {
-    schar v[4] = {0};
+    schar val[4] = {0};
+    vint8mf4_t() {}
+    vint8mf4_t(const schar* ptr)
+    {
+        for (int i = 0; i < 4; ++i)
+        {
+            val[i] = ptr[i];
+        }
+    }
 };
 
 #define OPENCV_HAL_IMPL_RVV_NATIVE_REINTERPRET(_Tpvec1, _Tpvec2, suffix1, suffix2) \
@@ -94,9 +175,7 @@ OPENCV_HAL_IMPL_RVV_NATIVE_REINTERPRET(vint32m1_t, vint64m1_t, i32, i64)
 #define OPENCV_HAL_IMPL_RVV_NATIVE_LOADSTORE_MF2(_Tpvec, _Tp, suffix, width) \
 inline _Tpvec vle##width##_v_##suffix##mf2(const _Tp* ptr) \
 { \
-    CV_UNUSED(ptr); \
-    _Tpvec tmp; \
-    return tmp; \
+    return _Tpvec(ptr); \
 } \
 inline void vse##width##_v_##suffix##mf2(_Tp* ptr, _Tpvec v) \
 { \
@@ -123,44 +202,50 @@ inline vfloat32mf2_t vfncvt_f_f_w_f32mf2 (vfloat64m1_t v)
     return tmp;
 }
 
-#define OPENCV_HAL_IMPL_RVV_NATIVE_WCVT(_Tpwvec, _Tpvec, wcvt, suffix) \
+#define OPENCV_HAL_IMPL_RVV_NATIVE_WCVT(_Tpwvec, _Tpvec, _wTp, wcvt, suffix, width, n) \
 inline _Tpwvec wcvt (_Tpvec v) \
 { \
-    CV_UNUSED(v); \
-    return _Tpwvec(vzero_##suffix##m1()); \
+    _wTp tmp[n]; \
+    for (int i = 0; i < n; ++i) \
+    { \
+            tmp[i] = (_wTp)v.val[i]; \
+    } \
+    return vle##width##_v_##suffix##m1(tmp); \
 }
 
-OPENCV_HAL_IMPL_RVV_NATIVE_WCVT(vuint16m1_t, vuint8mf2_t, vwcvtu_x_x_v_u16m1, u16)
-OPENCV_HAL_IMPL_RVV_NATIVE_WCVT(vint16m1_t, vint8mf2_t, vwcvt_x_x_v_i16m1, i16)
-OPENCV_HAL_IMPL_RVV_NATIVE_WCVT(vuint32m1_t, vuint16mf2_t, vwcvtu_x_x_v_u32m1, u32)
-OPENCV_HAL_IMPL_RVV_NATIVE_WCVT(vint32m1_t, vint16mf2_t, vwcvt_x_x_v_i32m1, i32)
-OPENCV_HAL_IMPL_RVV_NATIVE_WCVT(vuint64m1_t, vuint32mf2_t, vwcvtu_x_x_v_u64m1, u64)
-OPENCV_HAL_IMPL_RVV_NATIVE_WCVT(vint64m1_t, vint32mf2_t, vwcvt_x_x_v_i64m1, i64)
+OPENCV_HAL_IMPL_RVV_NATIVE_WCVT(vuint16m1_t, vuint8mf2_t, ushort, vwcvtu_x_x_v_u16m1, u16, 16, 8)
+OPENCV_HAL_IMPL_RVV_NATIVE_WCVT(vint16m1_t, vint8mf2_t, short, vwcvt_x_x_v_i16m1, i16, 16, 8)
+OPENCV_HAL_IMPL_RVV_NATIVE_WCVT(vuint32m1_t, vuint16mf2_t, unsigned, vwcvtu_x_x_v_u32m1, u32, 32, 4)
+OPENCV_HAL_IMPL_RVV_NATIVE_WCVT(vint32m1_t, vint16mf2_t, int, vwcvt_x_x_v_i32m1, i32, 32, 4)
+OPENCV_HAL_IMPL_RVV_NATIVE_WCVT(vuint64m1_t, vuint32mf2_t, uint64, vwcvtu_x_x_v_u64m1, u64, 64, 2)
+OPENCV_HAL_IMPL_RVV_NATIVE_WCVT(vint64m1_t, vint32mf2_t, int64, vwcvt_x_x_v_i64m1, i64, 64, 2)
 
 inline vuint8mf4_t vle8_v_u8mf4 (const uint8_t *base)
 {
-    CV_UNUSED(base);
-    vuint8mf4_t tmp;
-    return tmp;
+    return vuint8mf4_t(base);
 }
 inline vint8mf4_t vle8_v_i8mf4 (const int8_t *base)
 {
-    CV_UNUSED(base);
-    vint8mf4_t tmp;
-    return tmp;
+    return vint8mf4_t(base);
 }
 
 inline vuint16mf2_t vwcvtu_x_x_v_u16mf2 (vuint8mf4_t src)
 {
-    CV_UNUSED(src);
-    vuint16mf2_t tmp;
-    return tmp;
+    ushort tmp[4];
+    for (int i = 0; i < 4; ++i)
+    {
+            tmp[i] = (ushort)src.val[i];
+    }
+    return vle16_v_u16mf2(tmp);
 }
 inline vint16mf2_t vwcvt_x_x_v_i16mf2 (vint8mf4_t src)
 {
-    CV_UNUSED(src);
-    vint16mf2_t tmp;
-    return tmp;
+    short tmp[4];
+    for (int i = 0; i < 4; ++i)
+    {
+            tmp[i] = (short)src.val[i];
+    }
+    return vle16_v_i16mf2(tmp);
 }
 
 #define OPENCV_HAL_IMPL_RVV_NATIVE_NCLIP(_Tpnvec, _Tpvec, nclip) \
