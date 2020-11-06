@@ -2367,29 +2367,37 @@ OPENCV_HAL_IMPL_RVV_POPCOUNT_OP(v_uint64x2, v_int64x2, uint64, int64, u64)
 
 //////////// SignMask ////////////
 
-#define OPENCV_HAL_IMPL_RVV_SIGNMASK_OP(_Tpvec, _Tp, suffix) \
+#define OPENCV_HAL_IMPL_RVV_SIGNMASK_OP(_Tpvec, _Tp, suffix, width, shift) \
 inline int v_signmask(const _Tpvec& a) \
 { \
     int mask = 0; \
-    _Tp CV_DECL_ALIGNED(32) ptr[_Tpvec::nlanes] = {0}; \
-    v_store(ptr, v_reinterpret_as_##suffix(a)); \
+    vsetvlmax_e##width##m1(); \
+    _Tpvec tmp = _Tpvec(vsrl_vx_##suffix##m1(a, shift)); \
     for( int i = 0; i < _Tpvec::nlanes; i++ ) \
-        mask |= (int(ptr[i]) < 0) << i; \
+        mask |= (int)(tmp.val[i]) << i; \
     return mask; \
 }
 
-OPENCV_HAL_IMPL_RVV_SIGNMASK_OP(v_uint8x16, uchar, u8)
-OPENCV_HAL_IMPL_RVV_SIGNMASK_OP(v_int8x16, schar, s8)
-OPENCV_HAL_IMPL_RVV_SIGNMASK_OP(v_uint16x8, ushort, u16)
-OPENCV_HAL_IMPL_RVV_SIGNMASK_OP(v_int16x8, short, s16)
-OPENCV_HAL_IMPL_RVV_SIGNMASK_OP(v_uint32x4, unsigned, u32)
-OPENCV_HAL_IMPL_RVV_SIGNMASK_OP(v_int32x4, int, s32)
-OPENCV_HAL_IMPL_RVV_SIGNMASK_OP(v_float32x4, float, f32)
-OPENCV_HAL_IMPL_RVV_SIGNMASK_OP(v_uint64x2, uint64, u64)
-OPENCV_HAL_IMPL_RVV_SIGNMASK_OP(v_int64x2, int64, s64)
+OPENCV_HAL_IMPL_RVV_SIGNMASK_OP(v_uint8x16, uchar, u8, 8, 7)
+OPENCV_HAL_IMPL_RVV_SIGNMASK_OP(v_uint16x8, ushort, u16, 16, 15)
+OPENCV_HAL_IMPL_RVV_SIGNMASK_OP(v_uint32x4, unsigned, u32, 32, 31)
+OPENCV_HAL_IMPL_RVV_SIGNMASK_OP(v_uint64x2, uint64, u64, 64, 63)
+
+inline int v_signmask(const v_int8x16& a)
+{ return v_signmask(v_reinterpret_as_u8(a)); }
+inline int v_signmask(const v_int16x8& a)
+{ return v_signmask(v_reinterpret_as_u16(a)); }
+inline int v_signmask(const v_int32x4& a)
+{ return v_signmask(v_reinterpret_as_u32(a)); }
+inline int v_signmask(const v_float32x4& a)
+{ return v_signmask(v_reinterpret_as_u32(a)); }
+inline int v_signmask(const v_int64x2& a)
+{ return v_signmask(v_reinterpret_as_u64(a)); }
 #if CV_SIMD128_64F
-OPENCV_HAL_IMPL_RVV_SIGNMASK_OP(v_float64x2, double, f64)
+inline int v_signmask(const v_float64x2& a)
+{ return v_signmask(v_reinterpret_as_u64(a)); }
 #endif
+
 
 //////////// Scan forward ////////////
 
