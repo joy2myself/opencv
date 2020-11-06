@@ -186,6 +186,7 @@ inline _Tpwvec wcvt (_Tpvec v) \
     { \
             tmp[i] = (_wTp)v.val[i]; \
     } \
+    vsetvlmax_e##width##m1(); \
     return vle##width##_v_##suffix##m1(tmp); \
 }
 
@@ -777,6 +778,7 @@ inline v_int8x16 v_load_halves(const schar* ptr0, const schar* ptr1)
         ptr0[0], ptr0[1], ptr0[2], ptr0[3], ptr0[4], ptr0[5], ptr0[6], ptr0[7],
         ptr1[0], ptr1[1], ptr1[2], ptr1[3], ptr1[4], ptr1[5], ptr1[6], ptr1[7]
     };
+    vsetvlmax_e8m1();
     return v_int8x16(vle8_v_i8m1(elems));
 }
 inline v_uint8x16 v_load_halves(const uchar* ptr0, const uchar* ptr1) { return v_reinterpret_as_u8(v_load_halves((schar*)ptr0, (schar*)ptr1)); }
@@ -787,6 +789,7 @@ inline v_int16x8 v_load_halves(const short* ptr0, const short* ptr1)
     {
         ptr0[0], ptr0[1], ptr0[2], ptr0[3], ptr1[0], ptr1[1], ptr1[2], ptr1[3]
     };
+    vsetvlmax_e16m1();
     return v_int16x8(vle16_v_i16m1(elems));
 }
 inline v_uint16x8 v_load_halves(const ushort* ptr0, const ushort* ptr1) { return v_reinterpret_as_u16(v_load_halves((short*)ptr0, (short*)ptr1)); }
@@ -797,6 +800,7 @@ inline v_int32x4 v_load_halves(const int* ptr0, const int* ptr1)
     {
         ptr0[0], ptr0[1], ptr1[0], ptr1[1]
     };
+    vsetvlmax_e32m1();
     return v_int32x4(vle32_v_i32m1(elems));
 }
 inline v_float32x4 v_load_halves(const float* ptr0, const float* ptr1)
@@ -805,6 +809,7 @@ inline v_float32x4 v_load_halves(const float* ptr0, const float* ptr1)
     {
         ptr0[0], ptr0[1], ptr1[0], ptr1[1]
     };
+    vsetvlmax_e32m1();
     return v_float32x4(vle32_v_f32m1(elems));
 }
 inline v_uint32x4 v_load_halves(const unsigned* ptr0, const unsigned* ptr1) { return v_reinterpret_as_u32(v_load_halves((int*)ptr0, (int*)ptr1)); }
@@ -815,6 +820,7 @@ inline v_int64x2 v_load_halves(const int64* ptr0, const int64* ptr1)
     {
         ptr0[0], ptr1[0]
     };
+    vsetvlmax_e64m1();
     return v_int64x2(vle64_v_i64m1(elems));
 }
 inline v_uint64x2 v_load_halves(const uint64* ptr0, const uint64* ptr1) { return v_reinterpret_as_u64(v_load_halves((int64*)ptr0, (int64*)ptr1)); }
@@ -826,6 +832,7 @@ inline v_float64x2 v_load_halves(const double* ptr0, const double* ptr1)
     {
         ptr0[0], ptr1[0]
     };
+    vsetvlmax_e64m1();
     return v_float64x2(vle64_v_f64m1(elems));
 }
 #endif
@@ -854,6 +861,7 @@ inline v_int8x16 v_lut(const schar* tab, const int* idx)
         tab[idx[14]],
         tab[idx[15]]
     };
+    vsetvlmax_e8m1();
     return v_int8x16(vle8_v_i8m1(elems));
 }
 inline v_int8x16 v_lut_pairs(const schar* tab, const int* idx)
@@ -877,6 +885,7 @@ inline v_int8x16 v_lut_pairs(const schar* tab, const int* idx)
         tab[idx[7]],
         tab[idx[7] + 1]
     };
+    vsetvlmax_e8m1();
     return v_int8x16(vle8_v_i8m1(elems));
 }
 inline v_int8x16 v_lut_quads(const schar* tab, const int* idx)
@@ -900,6 +909,7 @@ inline v_int8x16 v_lut_quads(const schar* tab, const int* idx)
         tab[idx[3] + 2],
         tab[idx[3] + 3]
     };
+    vsetvlmax_e8m1();
     return v_int8x16(vle8_v_i8m1(elems));
 }
 inline v_uint8x16 v_lut(const uchar* tab, const int* idx) { return v_reinterpret_as_u8(v_lut((schar*)tab, idx)); }
@@ -919,6 +929,7 @@ inline v_int16x8 v_lut(const short* tab, const int* idx)
         tab[idx[6]],
         tab[idx[7]]
     };
+    vsetvlmax_e16m1();
     return v_int16x8(vle16_v_i16m1(elems));
 }
 inline v_int16x8 v_lut_pairs(const short* tab, const int* idx)
@@ -934,6 +945,7 @@ inline v_int16x8 v_lut_pairs(const short* tab, const int* idx)
         tab[idx[3]],
         tab[idx[3] + 1]
     };
+    vsetvlmax_e16m1();
     return v_int16x8(vle16_v_i16m1(elems));
 }
 inline v_int16x8 v_lut_quads(const short* tab, const int* idx)
@@ -949,6 +961,7 @@ inline v_int16x8 v_lut_quads(const short* tab, const int* idx)
         tab[idx[1] + 2],
         tab[idx[1] + 3]
     };
+    vsetvlmax_e16m1();
     return v_int16x8(vle16_v_i16m1(elems));
 }
 inline v_uint16x8 v_lut(const ushort* tab, const int* idx) { return v_reinterpret_as_u16(v_lut((short*)tab, idx)); }
@@ -964,6 +977,7 @@ inline v_int32x4 v_lut(const int* tab, const int* idx)
         tab[idx[2]],
         tab[idx[3]]
     };
+    vsetvlmax_e32m1();
     return v_int32x4(vle32_v_i32m1(elems));
 }
 inline v_int32x4 v_lut_pairs(const int* tab, const int* idx)
@@ -975,10 +989,12 @@ inline v_int32x4 v_lut_pairs(const int* tab, const int* idx)
         tab[idx[1]],
         tab[idx[1] + 1]
     };
+    vsetvlmax_e32m1();
     return v_int32x4(vle32_v_i32m1(elems));
 }
 inline v_int32x4 v_lut_quads(const int* tab, const int* idx)
 {
+    vsetvlmax_e32m1();
     return v_int32x4(vle32_v_i32m1(tab + idx[0]));
 }
 
@@ -993,10 +1009,12 @@ inline v_int64x2 v_lut(const int64_t* tab, const int* idx)
         tab[idx[0]],
         tab[idx[1]]
     };
+    vsetvlmax_e64m1();
     return v_int64x2(vle64_v_i64m1(elems));
 }
 inline v_int64x2 v_lut_pairs(const int64* tab, const int* idx)
 {
+    vsetvlmax_e64m1();
     return v_int64x2(vle64_v_i64m1(tab + idx[0]));
 }
 inline v_uint64x2 v_lut(const uint64* tab, const int* idx) { return v_reinterpret_as_u64(v_lut((const int64_t *)tab, idx)); }
@@ -1011,6 +1029,7 @@ inline v_float32x4 v_lut(const float* tab, const int* idx)
         tab[idx[2]],
         tab[idx[3]]
     };
+    vsetvlmax_e32m1();
     return v_float32x4(vle32_v_f32m1(elems));
 }
 inline v_float32x4 v_lut_pairs(const float* tab, const int* idx)
@@ -1022,10 +1041,12 @@ inline v_float32x4 v_lut_pairs(const float* tab, const int* idx)
         tab[idx[1]],
         tab[idx[1] + 1]
     };
+    vsetvlmax_e32m1();
     return v_float32x4(vle32_v_f32m1(elems));
 }
 inline v_float32x4 v_lut_quads(const float* tab, const int* idx)
 {
+    vsetvlmax_e32m1();
     return v_float32x4(vle32_v_f32m1(tab + idx[0]));
 }
 
@@ -1038,6 +1059,7 @@ inline v_int32x4 v_lut(const int* tab, const v_int32x4& idxvec)
         tab[v_extract_n<2>(idxvec)],
         tab[v_extract_n<3>(idxvec)]
     };
+    vsetvlmax_e32m1();
     return v_int32x4(vle32_v_i32m1(elems));
 }
 
@@ -1050,6 +1072,7 @@ inline v_uint32x4 v_lut(const unsigned* tab, const v_int32x4& idxvec)
         tab[v_extract_n<2>(idxvec)],
         tab[v_extract_n<3>(idxvec)]
     };
+    vsetvlmax_e32m1();
     return v_uint32x4(vle32_v_u32m1(elems));
 }
 
@@ -1062,6 +1085,7 @@ inline v_float32x4 v_lut(const float* tab, const v_int32x4& idxvec)
         tab[v_extract_n<2>(idxvec)],
         tab[v_extract_n<3>(idxvec)]
     };
+    vsetvlmax_e32m1();
     return v_float32x4(vle32_v_f32m1(elems));
 }
 
@@ -1082,11 +1106,13 @@ inline v_float64x2 v_lut(const double* tab, const int* idx)
         tab[idx[0]],
         tab[idx[1]]
     };
+    vsetvlmax_e64m1();
     return v_float64x2(vle64_v_f64m1(elems));
 }
 
 inline v_float64x2 v_lut_pairs(const double* tab, const int* idx)
 {
+    vsetvlmax_e64m1();
     return v_float64x2(vle64_v_f64m1(tab + idx[0]));
 }
 
@@ -1097,6 +1123,7 @@ inline v_float64x2 v_lut(const double* tab, const v_int32x4& idxvec)
         tab[v_extract_n<0>(idxvec)],
         tab[v_extract_n<1>(idxvec)]
     };
+    vsetvlmax_e64m1();
     return v_float64x2(vle64_v_f64m1(elems));
 }
 
@@ -1117,6 +1144,7 @@ inline v_uint8x16 v_pack_b(const v_uint16x8& a, const v_uint16x8& b)
     ushort CV_DECL_ALIGNED(32) ptr[16] = {0};
     v_store(ptr, a);
     v_store(ptr + 8, b);
+    vsetvlmax_e8m1();
     return v_uint8x16(vnsrl_wx_u8m1(vle16_v_u16m2(ptr), 0));
 }
 
@@ -1128,6 +1156,7 @@ inline v_uint8x16 v_pack_b(const v_uint32x4& a, const v_uint32x4& b,
     v_store(ptr + 4, b);
     v_store(ptr + 8, c);
     v_store(ptr + 12, d);
+    vsetvlmax_e8m1();
     return v_uint8x16(vnsrl_wx_u8m1(vnsrl_wx_u16m2(vle32_v_u32m4(ptr), 0), 0));
 }
 
@@ -1144,6 +1173,7 @@ inline v_uint8x16 v_pack_b(const v_uint64x2& a, const v_uint64x2& b, const v_uin
     v_store(ptr + 10, f);
     v_store(ptr + 12, g);
     v_store(ptr + 14, h);
+    vsetvlmax_e8m1();
     return v_uint8x16(vnsrl_wx_u8m1(vnsrl_wx_u16m2(vnsrl_wx_u32m4(vle64_v_u64m8(ptr), 0), 0), 0));
 }
 
@@ -1229,10 +1259,12 @@ OPENCV_HAL_IMPL_RVV_LOGIC_OP(v_int64x2, i64, 64)
 #define OPENCV_HAL_IMPL_RVV_FLT_BIT_OP(bin_op, intrin) \
 inline v_float32x4 operator bin_op (const v_float32x4& a, const v_float32x4& b) \
 { \
+    vsetvlmax_e32m1(); \
     return v_float32x4(vreinterpret_v_i32m1_f32m1(intrin(vreinterpret_v_f32m1_i32m1(a), vreinterpret_v_f32m1_i32m1(b)))); \
 } \
 inline v_float32x4& operator bin_op##= (v_float32x4& a, const v_float32x4& b) \
 { \
+    vsetvlmax_e32m1(); \
     a = v_float32x4(vreinterpret_v_i32m1_f32m1(intrin(vreinterpret_v_f32m1_i32m1(a), vreinterpret_v_f32m1_i32m1(b)))); \
     return a; \
 }
@@ -1243,6 +1275,7 @@ OPENCV_HAL_IMPL_RVV_FLT_BIT_OP(^, vxor_vv_i32m1)
 
 inline v_float32x4 operator ~ (const v_float32x4& a)
 {
+    vsetvlmax_e32m1();
     return v_float32x4(vreinterpret_v_i32m1_f32m1(vnot_v_i32m1(vreinterpret_v_f32m1_i32m1(a))));
 }
 
@@ -1250,10 +1283,12 @@ inline v_float32x4 operator ~ (const v_float32x4& a)
 #define OPENCV_HAL_IMPL_RVV_FLT64_BIT_OP(bin_op, intrin) \
 inline v_float64x2 operator bin_op (const v_float64x2& a, const v_float64x2& b) \
 { \
+    vsetvlmax_e64m1(); \
     return v_float64x2(vreinterpret_v_i64m1_f64m1(intrin(vreinterpret_v_f64m1_i64m1(a), vreinterpret_v_f64m1_i64m1(b)))); \
 } \
 inline v_float64x2& operator bin_op##= (v_float64x2& a, const v_float64x2& b) \
 { \
+    vsetvlmax_e64m1(); \
     a = v_float64x2(vreinterpret_v_i64m1_f64m1(intrin(vreinterpret_v_f64m1_i64m1(a), vreinterpret_v_f64m1_i64m1(b)))); \
     return a; \
 }
@@ -1264,6 +1299,7 @@ OPENCV_HAL_IMPL_RVV_FLT64_BIT_OP(^, vxor_vv_i64m1)
 
 inline v_float64x2 operator ~ (const v_float64x2& a)
 {
+    vsetvlmax_e64m1();
     return v_float64x2(vreinterpret_v_i64m1_f64m1(vnot_v_i64m1(vreinterpret_v_f64m1_i64m1(a))));
 }
 #endif
@@ -1435,25 +1471,27 @@ OPENCV_HAL_IMPL_RVV_BIN_FUNC(v_int16x8, v_mul_wrap, vmul_vv_i16m1, 16)
 
 ////////////// Reduce //////////////
 
-#define OPENCV_HAL_IMPL_RVV_REDUCE_SUM(_Tpvec, scalartype, suffix, width, red) \
+#define OPENCV_HAL_IMPL_RVV_REDUCE_SUM(_Tpvec, _wTpvec, _nwTpvec, scalartype, suffix, wsuffix, wwidth, red) \
 inline scalartype v_reduce_sum(const _Tpvec& a)  \
 { \
-    vsetvlmax_e##width##m1(); \
-    _Tpvec res = _Tpvec(v##red##_vs_##suffix##m1_##suffix##m1(a, a, vzero_##suffix##m1())); \
-    return scalartype(res.get0()); \
+    vsetvlmax_e##wwidth##m1(); \
+    _nwTpvec zero = vzero_##wsuffix##m1(); \
+    _nwTpvec res = vzero_##wsuffix##m1(); \
+    res = v##red##_vs_##suffix##m1_##wsuffix##m1(res, a, zero); \
+    return (scalartype)(_wTpvec(res).get0()); \
 }
 
-OPENCV_HAL_IMPL_RVV_REDUCE_SUM(v_uint8x16, unsigned, u8, 8, redsum)
-OPENCV_HAL_IMPL_RVV_REDUCE_SUM(v_int8x16, int, i8, 8, redsum)
-OPENCV_HAL_IMPL_RVV_REDUCE_SUM(v_uint16x8, unsigned, u16, 16, redsum)
-OPENCV_HAL_IMPL_RVV_REDUCE_SUM(v_int16x8, int, i16, 16, redsum)
-OPENCV_HAL_IMPL_RVV_REDUCE_SUM(v_uint32x4, unsigned, u32, 32, redsum)
-OPENCV_HAL_IMPL_RVV_REDUCE_SUM(v_int32x4, int, i32, 32, redsum)
-OPENCV_HAL_IMPL_RVV_REDUCE_SUM(v_float32x4, float, f32, 32, fredsum)
-OPENCV_HAL_IMPL_RVV_REDUCE_SUM(v_uint64x2, uint64, u64, 64, redsum)
-OPENCV_HAL_IMPL_RVV_REDUCE_SUM(v_int64x2, int64, i64, 64, redsum)
+OPENCV_HAL_IMPL_RVV_REDUCE_SUM(v_uint8x16, v_uint16x8, vuint16m1_t, unsigned, u8, u16, 16, wredsumu)
+OPENCV_HAL_IMPL_RVV_REDUCE_SUM(v_int8x16, v_int16x8, vint16m1_t, int, i8, i16, 16, wredsum)
+OPENCV_HAL_IMPL_RVV_REDUCE_SUM(v_uint16x8, v_uint32x4, vuint32m1_t, unsigned, u16, u32, 32, wredsumu)
+OPENCV_HAL_IMPL_RVV_REDUCE_SUM(v_int16x8, v_int32x4, vint32m1_t, int, i16, i32, 32, wredsum)
+OPENCV_HAL_IMPL_RVV_REDUCE_SUM(v_uint32x4, v_uint64x2, vuint64m1_t, unsigned, u32, u64, 64, wredsumu)
+OPENCV_HAL_IMPL_RVV_REDUCE_SUM(v_int32x4, v_int64x2, vint64m1_t, int, i32, i64, 64, wredsum)
+OPENCV_HAL_IMPL_RVV_REDUCE_SUM(v_float32x4, v_float32x4, vfloat32m1_t, float, f32, f32, 32, fredsum)
+OPENCV_HAL_IMPL_RVV_REDUCE_SUM(v_uint64x2, v_uint64x2, vuint64m1_t, uint64, u64, u64, 64, redsum)
+OPENCV_HAL_IMPL_RVV_REDUCE_SUM(v_int64x2, v_int64x2, vint64m1_t, int64, i64, i64, 64, redsum)
 #if CV_SIMD128_64F
-OPENCV_HAL_IMPL_RVV_REDUCE_SUM(v_float64x2, double, f64, 64, fredsum)
+OPENCV_HAL_IMPL_RVV_REDUCE_SUM(v_float64x2, v_float64x2, vfloat64m1_t, double, f64, f64, 64, fredsum)
 #endif
 
 
@@ -1491,6 +1529,7 @@ inline v_float32x4 v_reduce_sum4(const v_float32x4& a, const v_float32x4& b,
         v_reduce_sum(c),
         v_reduce_sum(d)
     };
+    vsetvlmax_e32m1();
     return v_float32x4(vle32_v_f32m1(elems));
 }
 
@@ -1498,6 +1537,7 @@ inline v_float32x4 v_reduce_sum4(const v_float32x4& a, const v_float32x4& b,
 
 inline v_float32x4 v_sqrt(const v_float32x4& x)
 {
+    vsetvlmax_e32m1();
     return v_float32x4(vfsqrt_v_f32m1(x));
 }
 
@@ -1510,6 +1550,7 @@ inline v_float32x4 v_invsqrt(const v_float32x4& x)
 #if CV_SIMD128_64F
 inline v_float64x2 v_sqrt(const v_float64x2& x)
 {
+    vsetvlmax_e64m1();
     return v_float64x2(vfsqrt_v_f64m1(x));
 }
 
@@ -1522,24 +1563,28 @@ inline v_float64x2 v_invsqrt(const v_float64x2& x)
 
 inline v_float32x4 v_magnitude(const v_float32x4& a, const v_float32x4& b)
 {
+    vsetvlmax_e32m1();
     v_float32x4 x(vfmacc_vv_f32m1(vfmul_vv_f32m1(a, a), b, b));
     return v_sqrt(x);
 }
 
 inline v_float32x4 v_sqr_magnitude(const v_float32x4& a, const v_float32x4& b)
 {
+    vsetvlmax_e32m1();
     return v_float32x4(vfmacc_vv_f32m1(vfmul_vv_f32m1(a, a), b, b));
 }
 
 #if CV_SIMD128_64F
 inline v_float64x2 v_magnitude(const v_float64x2& a, const v_float64x2& b)
 {
+    vsetvlmax_e64m1();
     v_float64x2 x(vfmacc_vv_f64m1(vfmul_vv_f64m1(a, a), b, b));
     return v_sqrt(x);
 }
 
 inline v_float64x2 v_sqr_magnitude(const v_float64x2& a, const v_float64x2& b)
 {
+    vsetvlmax_e64m1();
     return v_float64x2(vfmacc_vv_f64m1(vfmul_vv_f64m1(a, a), b, b));
 }
 #endif
@@ -1548,10 +1593,12 @@ inline v_float64x2 v_sqr_magnitude(const v_float64x2& a, const v_float64x2& b)
 
 inline v_float32x4 v_fma(const v_float32x4& a, const v_float32x4& b, const v_float32x4& c)
 {
+    vsetvlmax_e32m1();
     return v_float32x4(vfmacc_vv_f32m1(c, a, b));
 }
 inline v_int32x4 v_fma(const v_int32x4& a, const v_int32x4& b, const v_int32x4& c)
 {
+    vsetvlmax_e32m1();
     return v_int32x4(vmacc_vv_i32m1(c, a, b));
 }
 
@@ -1568,6 +1615,7 @@ inline v_int32x4 v_muladd(const v_int32x4& a, const v_int32x4& b, const v_int32x
 #if CV_SIMD128_64F
 inline v_float64x2 v_fma(const v_float64x2& a, const v_float64x2& b, const v_float64x2& c)
 {
+    vsetvlmax_e64m1();
     return v_float64x2(vfmacc_vv_f64m1(c, a, b));
 }
 
@@ -1633,28 +1681,32 @@ inline bool v_check_any(const v_float64x2& a)
 
 ////////////// abs //////////////
 
-#define OPENCV_HAL_IMPL_RVV_ABSDIFF(_Tpvec, _Tprvec, abs, cast) \
-inline _Tprvec v_##abs(const _Tpvec& a, const _Tpvec& b) \
+#define OPENCV_HAL_IMPL_RVV_ABSDIFF(_Tpvec, abs) \
+inline _Tpvec v_##abs(const _Tpvec& a, const _Tpvec& b) \
 { \
-    return cast(v_max(a, b) - v_min(a, b)); \
+    return v_max(a, b) - v_min(a, b); \
 }
 
-OPENCV_HAL_IMPL_RVV_ABSDIFF(v_int8x16, v_uint8x16, absdiff, v_reinterpret_as_u8)
-OPENCV_HAL_IMPL_RVV_ABSDIFF(v_int16x8, v_uint16x8, absdiff, v_reinterpret_as_u16)
-OPENCV_HAL_IMPL_RVV_ABSDIFF(v_int32x4, v_uint32x4, absdiff, v_reinterpret_as_u32)
-OPENCV_HAL_IMPL_RVV_ABSDIFF(v_int64x2, v_uint64x2, absdiff, v_reinterpret_as_u64)
-
-OPENCV_HAL_IMPL_RVV_ABSDIFF(v_uint8x16, v_uint8x16, absdiff, OPENCV_HAL_NOP)
-OPENCV_HAL_IMPL_RVV_ABSDIFF(v_uint16x8, v_uint16x8, absdiff, OPENCV_HAL_NOP)
-OPENCV_HAL_IMPL_RVV_ABSDIFF(v_uint32x4, v_uint32x4, absdiff, OPENCV_HAL_NOP)
-OPENCV_HAL_IMPL_RVV_ABSDIFF(v_uint64x2, v_uint64x2, absdiff, OPENCV_HAL_NOP)
-OPENCV_HAL_IMPL_RVV_ABSDIFF(v_float32x4, v_float32x4, absdiff, OPENCV_HAL_NOP)
+OPENCV_HAL_IMPL_RVV_ABSDIFF(v_uint8x16, absdiff)
+OPENCV_HAL_IMPL_RVV_ABSDIFF(v_uint16x8, absdiff)
+OPENCV_HAL_IMPL_RVV_ABSDIFF(v_uint32x4, absdiff)
+OPENCV_HAL_IMPL_RVV_ABSDIFF(v_float32x4, absdiff)
 #if CV_SIMD128_64F
-OPENCV_HAL_IMPL_RVV_ABSDIFF(v_float64x2, v_float64x2, absdiff, OPENCV_HAL_NOP)
+OPENCV_HAL_IMPL_RVV_ABSDIFF(v_float64x2, absdiff)
 #endif
+OPENCV_HAL_IMPL_RVV_ABSDIFF(v_int8x16, absdiffs)
+OPENCV_HAL_IMPL_RVV_ABSDIFF(v_int16x8, absdiffs)
 
-OPENCV_HAL_IMPL_RVV_ABSDIFF(v_int8x16, v_int8x16, absdiffs, OPENCV_HAL_NOP)
-OPENCV_HAL_IMPL_RVV_ABSDIFF(v_int16x8, v_int16x8, absdiffs, OPENCV_HAL_NOP)
+#define OPENCV_HAL_IMPL_RVV_ABSDIFF_S(_Tpvec, _rTpvec, _nwTpvec, sub, rshr, width) \
+inline _rTpvec v_absdiff(const _Tpvec& a, const _Tpvec& b) \
+{ \
+    vsetvlmax_e##width##m1(); \
+    return _rTpvec(rshr((_nwTpvec)sub(v_max(a, b), v_min(a, b)), 0)); \
+}
+
+OPENCV_HAL_IMPL_RVV_ABSDIFF_S(v_int8x16, v_uint8x16, vuint16m2_t, vwsub_vv_i16m2, vnclipu_wx_u8m1, 8)
+OPENCV_HAL_IMPL_RVV_ABSDIFF_S(v_int16x8, v_uint16x8, vuint32m2_t, vwsub_vv_i32m2, vnclipu_wx_u16m1, 16)
+OPENCV_HAL_IMPL_RVV_ABSDIFF_S(v_int32x4, v_uint32x4, vuint64m2_t, vwsub_vv_i64m2, vnclipu_wx_u32m1, 32)
 
 #define OPENCV_HAL_IMPL_RVV_ABS(_Tprvec, _Tpvec, suffix) \
 inline _Tprvec v_abs(const _Tpvec& a) \
@@ -1751,6 +1803,7 @@ OPENCV_HAL_IMPL_RVV_ROTATE_OP(v_float64x2, f64, 64)
 
 inline v_float32x4 v_cvt_f32(const v_int32x4& a)
 {
+    vsetvlmax_e32m1();
     return v_float32x4(vfcvt_f_x_v_f32m1(a));
 }
 
@@ -1763,6 +1816,7 @@ inline v_float32x4 v_cvt_f32(const v_float64x2& a)
     {
         ptr[0], ptr[1], 0, 0
     };
+    vsetvlmax_e32m1();
     return v_float32x4(vle32_v_f32m1(elems));
 }
 
@@ -1776,55 +1830,65 @@ inline v_float32x4 v_cvt_f32(const v_float64x2& a, const v_float64x2& b)
     {
         ptra[0], ptra[1], ptrb[0], ptrb[1]
     };
+    vsetvlmax_e32m1();
     return v_float32x4(vle32_v_f32m1(elems));
 }
 
 inline v_float64x2 v_cvt_f64(const v_int32x4& a)
 {
     double CV_DECL_ALIGNED(32) ptr[4] = {0};
+    vsetvlmax_e64m2();
     vse64_v_f64m2(ptr, vfwcvt_f_x_v_f64m2(a));
     double CV_DECL_ALIGNED(32) elems[2] =
     {
         ptr[0], ptr[1]
     };
+    vsetvlmax_e64m1();
     return v_float64x2(vle64_v_f64m1(elems));
 }
 
 inline v_float64x2 v_cvt_f64_high(const v_int32x4& a)
 {
     double CV_DECL_ALIGNED(32) ptr[4] = {0};
+    vsetvlmax_e64m2();
     vse64_v_f64m2(ptr, vfwcvt_f_x_v_f64m2(a));
     double CV_DECL_ALIGNED(32) elems[2] =
     {
         ptr[2], ptr[3]
     };
+    vsetvlmax_e64m1();
     return v_float64x2(vle64_v_f64m1(elems));
 }
 
 inline v_float64x2 v_cvt_f64(const v_float32x4& a)
 {
     double CV_DECL_ALIGNED(32) ptr[4] = {0};
+    vsetvlmax_e64m2();
     vse64_v_f64m2(ptr, vfwcvt_f_f_v_f64m2(a));
     double CV_DECL_ALIGNED(32) elems[2] =
     {
         ptr[0], ptr[1]
     };
+    vsetvlmax_e64m1();
     return v_float64x2(vle64_v_f64m1(elems));
 }
 
 inline v_float64x2 v_cvt_f64_high(const v_float32x4& a)
 {
     double CV_DECL_ALIGNED(32) ptr[4] = {0};
+    vsetvlmax_e64m2();
     vse64_v_f64m2(ptr, vfwcvt_f_f_v_f64m2(a));
     double CV_DECL_ALIGNED(32) elems[2] =
     {
         ptr[2], ptr[3]
     };
+    vsetvlmax_e64m1();
     return v_float64x2(vle64_v_f64m1(elems));
 }
 
 inline v_float64x2 v_cvt_f64(const v_int64x2& a)
 {
+    vsetvlmax_e64m1();
     return v_float64x2(vfcvt_f_x_v_f64m1(a));
 }
 #endif
@@ -1903,7 +1967,6 @@ inline _Tpvec v_reverse(const _Tpvec& a)  \
 { \
     _Tp CV_DECL_ALIGNED(32) ptr[_Tpvec::nlanes] = {0}; \
     _Tp CV_DECL_ALIGNED(32) ptra[_Tpvec::nlanes] = {0}; \
-    vsetvlmax_e##width##m1(); \
     v_store(ptra, a); \
     for (int i = 0; i < _Tpvec::nlanes; i++) \
     { \
@@ -1963,11 +2026,13 @@ OPENCV_HAL_IMPL_RVV_EXPAND(v_int64x2, int, v_int32x4, 32, i32, vwcvt_x_x_v_i64m1
 
 inline v_uint32x4 v_load_expand_q(const uchar* ptr)
 {
+    vsetvlmax_e32m1();
     return v_uint32x4(vwcvtu_x_x_v_u32m1(vwcvtu_x_x_v_u16mf2(vle8_v_u8mf4(ptr))));
 }
 
 inline v_int32x4 v_load_expand_q(const schar* ptr)
 {
+    vsetvlmax_e32m1();
     return v_int32x4(vwcvt_x_x_v_i32m1(vwcvt_x_x_v_i16mf2(vle8_v_i8mf4(ptr))));
 }
 
@@ -2416,6 +2481,7 @@ inline void v_pack_store(float16_t* ptr, const v_float32x4& v)
 
 inline v_int32x4 v_round(const v_float32x4& a)
 {
+    vsetvlmax_e32m1();
     return v_int32x4(vfcvt_x_f_v_i32m1(a));
 }
 
@@ -2423,6 +2489,7 @@ inline v_int32x4 v_floor(const v_float32x4& a)
 {
     v_float32x4 ZP5 = v_setall_f32(0.5f);
     v_float32x4 t = a - ZP5;
+    vsetvlmax_e32m1();
     return v_int32x4(vfcvt_x_f_v_i32m1(t));
 }
 
@@ -2430,11 +2497,13 @@ inline v_int32x4 v_ceil(const v_float32x4& a)
 {
     v_float32x4 ZP5 = v_setall_f32(0.5f);
     v_float32x4 t = a + ZP5;
+    vsetvlmax_e32m1();
     return v_int32x4(vfcvt_x_f_v_i32m1(t));
 }
 
 inline v_int32x4 v_trunc(const v_float32x4& a)
 {
+    vsetvlmax_e32m1();
     return v_int32x4(vfcvt_rtz_x_f_v_i32m1(a));
 }
 #if CV_SIMD128_64F
@@ -2751,6 +2820,7 @@ inline v_float32x4 v_matmul(const v_float32x4& v, const v_float32x4& m0,
                             const v_float32x4& m1, const v_float32x4& m2,
                             const v_float32x4& m3)
 {
+    vsetvlmax_e32m1();
     vfloat32m1_t res = vfmul_vf_f32m1(m0, v_extract_n<0>(v));
     res = vfmacc_vf_f32m1(res, v_extract_n<1>(v), m1);
     res = vfmacc_vf_f32m1(res, v_extract_n<2>(v), m2);
@@ -2762,6 +2832,7 @@ inline v_float32x4 v_matmuladd(const v_float32x4& v, const v_float32x4& m0,
                                const v_float32x4& m1, const v_float32x4& m2,
                                const v_float32x4& a)
 {
+    vsetvlmax_e32m1();
     vfloat32m1_t res = vfmul_vf_f32m1(m0, v_extract_n<0>(v));
     res = vfmacc_vf_f32m1(res, v_extract_n<1>(v), m1);
     res = vfmacc_vf_f32m1(res, v_extract_n<2>(v), m2);
@@ -2772,7 +2843,9 @@ inline v_float32x4 v_matmuladd(const v_float32x4& v, const v_float32x4& m0,
 inline void v_mul_expand(const _Tpvec& a, const _Tpvec& b, _Tpwvec& c, _Tpwvec& d) \
 { \
     _Tpw CV_DECL_ALIGNED(32) ptr[_Tpwvec::nlanes*2] = {0}; \
+    vsetvlmax_e##width##m2(); \
     vse##width##_v_##suffix##m2(ptr, wmul(a, b)); \
+    vsetvlmax_e##width##m1(); \
     c = _Tpwvec(vle##width##_v_##suffix##m1(ptr)); \
     d = _Tpwvec(vle##width##_v_##suffix##m1(ptr+_Tpwvec::nlanes)); \
 }
@@ -2786,10 +2859,12 @@ OPENCV_HAL_IMPL_RVV_MUL_EXPAND(v_uint32x4, v_uint64x2, uint64, u64, vwmulu_vv_u6
 
 inline v_int16x8 v_mul_hi(const v_int16x8& a, const v_int16x8& b)
 {
+    vsetvlmax_e16m1();
     return v_int16x8(vnsra_wx_i16m1(vwmul_vv_i32m2(a, b), 16));
 }
 inline v_uint16x8 v_mul_hi(const v_uint16x8& a, const v_uint16x8& b)
 {
+    vsetvlmax_e16m1();
     return v_uint16x8(vnsrl_wx_u16m1(vwmulu_vv_u32m2(a, b), 16));
 }
 
