@@ -264,7 +264,7 @@ struct v_int8x16
     {
         vsetvlmax_e8m1();
         vse8_v_i8m1(val, v);
-    }    
+    }
     v_int8x16(schar v0, schar v1, schar v2, schar v3, schar v4, schar v5, schar v6, schar v7,
                schar v8, schar v9, schar v10, schar v11, schar v12, schar v13, schar v14, schar v15)
     {
@@ -297,7 +297,7 @@ struct v_uint16x8
     {
         vsetvlmax_e16m1();
         vse16_v_u16m1(val, v);
-    }    
+    }
     v_uint16x8(ushort v0, ushort v1, ushort v2, ushort v3, ushort v4, ushort v5, ushort v6, ushort v7)
     {
         ushort v[] = {v0, v1, v2, v3, v4, v5, v6, v7};
@@ -329,7 +329,7 @@ struct v_int16x8
     {
         vsetvlmax_e16m1();
         vse16_v_i16m1(val, v);
-    }    
+    }
     v_int16x8(short v0, short v1, short v2, short v3, short v4, short v5, short v6, short v7)
     {
         short v[] = {v0, v1, v2, v3, v4, v5, v6, v7};
@@ -393,7 +393,7 @@ struct v_int32x4
     {
         vsetvlmax_e32m1();
         vse32_v_i32m1(val, v);
-    }    
+    }
     v_int32x4(int v0, int v1, int v2, int v3)
     {
         int v[] = {v0, v1, v2, v3};
@@ -406,7 +406,7 @@ struct v_int32x4
     {
         vsetvlmax_e32m1();
         return vle32_v_i32m1(val);
-    }    
+    }
     int get0() const
     {
         return val[0];
@@ -424,7 +424,7 @@ struct v_float32x4
     {
         vsetvlmax_e32m1();
         vse32_v_f32m1(val, v);
-    }    
+    }
     v_float32x4(float v0, float v1, float v2, float v3)
     {
         float v[] = {v0, v1, v2, v3};
@@ -437,7 +437,7 @@ struct v_float32x4
     {
         vsetvlmax_e32m1();
         return vle32_v_f32m1(val);
-    } 
+    }
     float get0() const
     {
         return val[0];
@@ -455,7 +455,7 @@ struct v_uint64x2
     {
         vsetvlmax_e64m1();
         vse64_v_u64m1(val, v);
-    }    
+    }
     v_uint64x2(uint64 v0, uint64 v1)
     {
         uint64 v[] = {v0, v1};
