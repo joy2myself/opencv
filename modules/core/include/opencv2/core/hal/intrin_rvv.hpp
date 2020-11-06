@@ -171,12 +171,6 @@ OPENCV_HAL_IMPL_RVV_NATIVE_LOADSTORE_MF2(vuint64mf2_t, uint64_t, u64, 64, 1)
 OPENCV_HAL_IMPL_RVV_NATIVE_LOADSTORE_MF2(vint64mf2_t, int64_t, i64, 64, 1)
 OPENCV_HAL_IMPL_RVV_NATIVE_LOADSTORE_MF2(vfloat64mf2_t, float64_t, f64, 64, 1)
 
-inline vfloat32mf2_t vfncvt_f_f_w_f32mf2 (vfloat64m1_t v)
-{
-    CV_UNUSED(v);
-    vfloat32mf2_t tmp;
-    return tmp;
-}
 
 #define OPENCV_HAL_IMPL_RVV_NATIVE_WCVT(_Tpwvec, _Tpvec, _wTp, wcvt, suffix, width, n) \
 inline _Tpwvec wcvt (_Tpvec v) \
@@ -1806,28 +1800,20 @@ inline v_float32x4 v_cvt_f32(const v_int32x4& a)
 #if CV_SIMD128_64F
 inline v_float32x4 v_cvt_f32(const v_float64x2& a)
 {
-    float CV_DECL_ALIGNED(32) ptr[2] = {0};
-    vse32_v_f32mf2(ptr, vfncvt_f_f_w_f32mf2(a));
-    float CV_DECL_ALIGNED(32) elems[4] =
-    {
-        ptr[0], ptr[1], 0, 0
-    };
+    double arr[4] = {a.val[0], a.val[1], 0, 0};
+    vsetvlmax_e64m2();
+    vfloat64m2_t tmp = vle64_v_f64m2(arr);
     vsetvlmax_e32m1();
-    return v_float32x4(vle32_v_f32m1(elems));
+    return v_float32x4(vfncvt_f_f_w_f32m1(tmp));
 }
 
 inline v_float32x4 v_cvt_f32(const v_float64x2& a, const v_float64x2& b)
 {
-    float CV_DECL_ALIGNED(32) ptra[2] = {0};
-    float CV_DECL_ALIGNED(32) ptrb[2] = {0};
-    vse32_v_f32mf2(ptra, vfncvt_f_f_w_f32mf2(a));
-    vse32_v_f32mf2(ptrb, vfncvt_f_f_w_f32mf2(b));
-    float CV_DECL_ALIGNED(32) elems[4] =
-    {
-        ptra[0], ptra[1], ptrb[0], ptrb[1]
-    };
+    double arr[4] = {a.val[0], a.val[1], b.val[0], b.val[1]};
+    vsetvlmax_e64m2();
+    vfloat64m2_t tmp = vle64_v_f64m2(arr);
     vsetvlmax_e32m1();
-    return v_float32x4(vle32_v_f32m1(elems));
+    return v_float32x4(vfncvt_f_f_w_f32m1(tmp));
 }
 
 inline v_float64x2 v_cvt_f64(const v_int32x4& a)
@@ -2513,33 +2499,42 @@ inline v_int32x4 v_trunc(const v_float32x4& a)
 #if CV_SIMD128_64F
 inline v_int32x4 v_round(const v_float64x2& a)
 {
-    CV_UNUSED(a);
-    return v_setzero_s32();
+    double arr[4] = {a.val[0], a.val[1], 0, 0};
+    vsetvlmax_e64m2();
+    vfloat64m2_t tmp = vle64_v_f64m2(arr);
+    return v_int32x4(vfncvt_x_f_w_i32m1(tmp));
 }
 
 inline v_int32x4 v_round(const v_float64x2& a, const v_float64x2& b)
 {
-    CV_UNUSED(a);
-    CV_UNUSED(b);
-    return v_setzero_s32();
+    double arr[4] = {a.val[0], a.val[1], b.val[0], b.val[1]};
+    vsetvlmax_e64m2();
+    vfloat64m2_t tmp = vle64_v_f64m2(arr);
+    return v_int32x4(vfncvt_x_f_w_i32m1(tmp));
 }
 
 inline v_int32x4 v_floor(const v_float64x2& a)
 {
-    CV_UNUSED(a);
-    return v_setzero_s32();
+    double arr[4] = {a.val[0]-0.5f, a.val[1]-0.5f, 0, 0};
+    vsetvlmax_e64m2();
+    vfloat64m2_t tmp = vle64_v_f64m2(arr);
+    return v_int32x4(vfncvt_x_f_w_i32m1(tmp));
 }
 
 inline v_int32x4 v_ceil(const v_float64x2& a)
 {
-    CV_UNUSED(a);
-    return v_setzero_s32();
+    double arr[4] = {a.val[0]+0.5f, a.val[1]+0.5f, 0, 0};
+    vsetvlmax_e64m2();
+    vfloat64m2_t tmp = vle64_v_f64m2(arr);
+    return v_int32x4(vfncvt_x_f_w_i32m1(tmp));
 }
 
 inline v_int32x4 v_trunc(const v_float64x2& a)
 {
-    CV_UNUSED(a);
-    return v_setzero_s32();
+    double arr[4] = {a.val[0], a.val[1], 0, 0};
+    vsetvlmax_e64m2();
+    vfloat64m2_t tmp = vle64_v_f64m2(arr);
+    return v_int32x4(vfncvt_rtz_x_f_w_i32m1(tmp));
 }
 #endif
 
