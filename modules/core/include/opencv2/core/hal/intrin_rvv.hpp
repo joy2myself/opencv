@@ -1193,19 +1193,15 @@ inline _Tpvec& operator bin_op##= (_Tpvec& a, const _Tpvec& b) \
 
 OPENCV_HAL_IMPL_RVV_BIN_OP(+, v_uint8x16, vsaddu_vv_u8m1, 8)
 OPENCV_HAL_IMPL_RVV_BIN_OP(-, v_uint8x16, vssubu_vv_u8m1, 8)
-OPENCV_HAL_IMPL_RVV_BIN_OP(*, v_uint8x16, vmul_vv_u8m1, 8)
 OPENCV_HAL_IMPL_RVV_BIN_OP(/, v_uint8x16, vdivu_vv_u8m1, 8)
 OPENCV_HAL_IMPL_RVV_BIN_OP(+, v_int8x16, vsadd_vv_i8m1, 8)
 OPENCV_HAL_IMPL_RVV_BIN_OP(-, v_int8x16, vssub_vv_i8m1, 8)
-OPENCV_HAL_IMPL_RVV_BIN_OP(*, v_int8x16, vmul_vv_i8m1, 8)
 OPENCV_HAL_IMPL_RVV_BIN_OP(/, v_int8x16, vdiv_vv_i8m1, 8)
 OPENCV_HAL_IMPL_RVV_BIN_OP(+, v_uint16x8, vsaddu_vv_u16m1, 16)
 OPENCV_HAL_IMPL_RVV_BIN_OP(-, v_uint16x8, vssubu_vv_u16m1, 16)
-OPENCV_HAL_IMPL_RVV_BIN_OP(*, v_uint16x8, vmul_vv_u16m1, 16)
 OPENCV_HAL_IMPL_RVV_BIN_OP(/, v_uint16x8, vdivu_vv_u16m1, 16)
 OPENCV_HAL_IMPL_RVV_BIN_OP(+, v_int16x8, vsadd_vv_i16m1, 16)
 OPENCV_HAL_IMPL_RVV_BIN_OP(-, v_int16x8, vssub_vv_i16m1, 16)
-OPENCV_HAL_IMPL_RVV_BIN_OP(*, v_int16x8, vmul_vv_i16m1, 16)
 OPENCV_HAL_IMPL_RVV_BIN_OP(/, v_int16x8, vdiv_vv_i16m1, 16)
 OPENCV_HAL_IMPL_RVV_BIN_OP(+, v_uint32x4, vadd_vv_u32m1, 32)
 OPENCV_HAL_IMPL_RVV_BIN_OP(-, v_uint32x4, vsub_vv_u32m1, 32)
@@ -2868,6 +2864,26 @@ inline v_uint16x8 v_mul_hi(const v_uint16x8& a, const v_uint16x8& b)
     return v_uint16x8(vnsrl_wx_u16m1(vwmulu_vv_u32m2(a, b), 16));
 }
 
+
+//////// Saturating Multiply ////////
+
+#define OPENCV_HAL_IMPL_RVV_MUL_SAT(_Tpvec, _wTpvec) \
+inline _Tpvec operator * (const _Tpvec& a, const _Tpvec& b) \
+{ \
+    _wTpvec c, d; \
+    v_mul_expand(a, b, c, d); \
+    return v_pack(c, d); \
+} \
+inline _Tpvec& operator *= (_Tpvec& a, const _Tpvec& b) \
+{ \
+    a = a * b; \
+    return a; \
+}
+
+OPENCV_HAL_IMPL_RVV_MUL_SAT(v_uint8x16, v_uint16x8)
+OPENCV_HAL_IMPL_RVV_MUL_SAT(v_int8x16, v_int16x8)
+OPENCV_HAL_IMPL_RVV_MUL_SAT(v_uint16x8, v_uint32x4)
+OPENCV_HAL_IMPL_RVV_MUL_SAT(v_int16x8, v_int32x4)
 
 
 inline void v_cleanup() {}
