@@ -1285,7 +1285,8 @@ inline _Tpvec operator op (const _Tpvec& a, const _Tpvec& b) \
 #define OPENCV_HAL_IMPL_RVV_FLOAT_CMP_OP(_Tpvec, op, intrin, suffix, vl) \
 inline _Tpvec operator op (const _Tpvec& a, const _Tpvec& b) \
 { \
-    return _Tpvec(vfmerge_vfm_##suffix##m1(intrin(a, b, vl), vfmv_v_f_##suffix##m1(0, vl), 1, vl)); \
+    union { uint64 u; double d; } ones; ones.u = -1; \
+    return _Tpvec(vfmerge_vfm_##suffix##m1(intrin(a, b, vl), vfmv_v_f_##suffix##m1(0, vl), ones.d, vl)); \
 }
 
 #define OPENCV_HAL_IMPL_RVV_UNSIGNED_CMP(_Tpvec, suffix, width, vl) \
